@@ -1,52 +1,46 @@
-
-/* Variáveis de cores e estilos reutilizáveis */
 :root {
-    --primary-color: #252525;       /* Preto para textos/botões */
-    --secondary-color: #FFFFFF;     /* Branco para fundo */
-    --accent-color: #4CAF50;        /* Verde (não usado no seu design) */
-    --text-color: #333333;          /* Cinza escuro para descrição */
-    --light-gray: #f5f5f5;          /* Fundo cinza claro */
-    --border-radius: 12px;          /* Cantos arredondados */
-    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Sombra suave */
-    --transition: all 0.3s ease;    /* Transições suaves */
-    --linkedin-blue: #0074b4;       /* Azul do LinkedIn */
-    --abril-verde: #005b24;         /* Verde escuro Abril Verde */
-    --error-red: #d9534f;           /* Vermelho para erros */
+    --primary-color: #252525;
+    --secondary-color: #FFFFFF;
+    --accent-color: #4CAF50;
+    --text-color: #333333;
+    --light-gray: #f5f5f5;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+    --linkedin-blue: #0074b4;
+    --abril-verde: #005b24;
+    --error-red: #d9534f;
 }
 
-/* Reset básico para todos os elementos */
 * {
-    box-sizing: border-box;         /* Facilita cálculo de tamanhos */
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent; /* Remove highlight em mobile */
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* Estilos do corpo da página */
 body {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif; /* Fonte Gill Sans */
-    background-color: var(--secondary-color); /* Fundo branco */
-    color: var(--primary-color);    /* Cor de texto principal */
-    min-height: 100vh;             /* Mínimo altura da tela */
-    display: flex;
-    flex-direction: column;         /* Organiza em coluna */
-    align-items: center;            /* Centraliza horizontal */
-    padding: 20px 15px;            /* Espaçamento interno */
-    line-height: 1.5;              /* Espaçamento entre linhas */
-}
-
-/* Container principal da aplicação */
-.app-container {
-    width: 100%;
-    max-width: 500px;              /* Largura máxima conforme pedido */
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;                     /* Espaço entre elementos */
+    padding: 20px 15px;
+    line-height: 1.5;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
     position: relative;
 }
 
-/* Cabeçalho com logo e título */
 .header {
     width: 100%;
     display: flex;
@@ -57,25 +51,24 @@ body {
 }
 
 .logo {
-    width: 180px;                  /* Tamanho fixo para a logo */
-    height: auto;                  /* Mantém proporção */
-    object-fit: contain;           /* Garante que não distorça */
+    width: 180px;
+    height: auto;
+    object-fit: contain;
 }
 
 h1 {
     color: var(--primary-color);
-    font-weight: 600;              /* Negrito como especificado */
-    font-size: clamp(1.5rem, 5vw, 2rem); /* Tamanho responsivo */
+    font-weight: 600;
+    font-size: clamp(1.5rem, 5vw, 2rem);
     margin-top: 10px;
 }
 
 .description {
-    color: var(--text-color);      /* Cinza escuro */
-    font-size: clamp(0.9rem, 3vw, 1.05rem); /* Tamanho responsivo */
+    color: var(--text-color);
+    font-size: clamp(0.9rem, 3vw, 1.05rem);
     max-width: 500px;
 }
 
-/* Área de upload */
 .upload-container {
     width: 100%;
     display: flex;
@@ -84,19 +77,18 @@ h1 {
     gap: 15px;
 }
 
-/* Botão de selecionar foto */
 #fileInputLabel {
     display: inline-block;
     padding: 14px 28px;
-    background-color: var(--primary-color); /* Preto */
-    color: var(--secondary-color); /* Branco */
-    border-radius: 30px;           /* Bordas mais arredondadas */
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border-radius: 30px;
     cursor: pointer;
     font-weight: 600;
-    font-size: clamp(0.9rem, 3.5vw, 1rem); /* Responsivo */
+    font-size: clamp(0.9rem, 3.5vw, 1rem);
     transition: var(--transition);
     width: 100%;
-    max-width: 280px;              /* Largura máxima */
+    max-width: 280px;
     box-shadow: var(--box-shadow);
     text-align: center;
     border: none;
@@ -104,26 +96,24 @@ h1 {
 
 #fileInputLabel:hover, 
 #fileInputLabel:focus {
-    background-color: #3a3a3a;     /* Preto mais claro no hover */
-    transform: translateY(-2px);   /* Efeito de levantar */
-    outline: none;                 /* Remove contorno padrão */
+    background-color: #3a3a3a;
+    transform: translateY(-2px);
+    outline: none;
 }
 
-/* Esconde o input de arquivo real */
 #fileInput {
     display: none;
 }
 
-/* Container do canvas (área da imagem) */
 .canvas-container {
     position: relative;
     width: 100%;
-    aspect-ratio: 1/1;             /* Mantém proporção quadrada */
+    aspect-ratio: 1/1;
     border-radius: var(--border-radius);
-    overflow: hidden;               /* Esconde bordas arredondadas */
+    overflow: hidden;
     box-shadow: var(--box-shadow);
-    background-color: var(--light-gray); /* Fundo cinza claro */
-    touch-action: none;            /* Melhora interação em mobile */
+    background-color: var(--light-gray);
+    touch-action: none;
 }
 
 canvas {
@@ -134,28 +124,26 @@ canvas {
     background-color: var(--light-gray);
 }
 
-/* Overlay de carregamento */
 .loading-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.9); /* Branco semi-transparente */
+    background-color: rgba(255, 255, 255, 0.9);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 10;                   /* Fica acima de tudo */
-    display: none;                 /* Inicialmente oculto */
+    z-index: 10;
+    display: none;
     gap: 15px;
 }
 
-/* Animação de carregamento */
 .spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
     border-radius: 50%;
-    border-top: 4px solid var(--primary-color); /* Preto */
+    border-top: 4px solid var(--primary-color);
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
@@ -172,10 +160,9 @@ canvas {
     font-size: 1rem;
 }
 
-/* Controles (inicialmente ocultos) */
 .controls {
     width: 100%;
-    display: none;                 /* Será mostrado após upload */
+    display: none;
     flex-direction: column;
     gap: 20px;
     background-color: var(--secondary-color);
@@ -184,7 +171,6 @@ canvas {
     box-shadow: var(--box-shadow);
 }
 
-/* Estilos dos sliders (zoom/rotação) */
 .slider-container {
     display: flex;
     flex-direction: column;
@@ -214,32 +200,30 @@ canvas {
     height: 6px;
     -webkit-appearance: none;
     appearance: none;
-    background: #e0e0e0;           /* Barra cinza */
+    background: #e0e0e0;
     outline: none;
     border-radius: 3px;
     margin-top: 5px;
 }
 
-/* Estilo do "ponteiro" do slider */
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: var(--primary-color); /* Preto */
+    background: var(--primary-color);
     cursor: pointer;
     transition: var(--transition);
 }
 
 .slider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);         /* Aumenta no hover */
+    transform: scale(1.1);
 }
 
-/* Estilos base para botões */
 .btn {
-    background-color: var(--primary-color); /* Preto */
-    color: var(--secondary-color); /* Branco */
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
     border: none;
     padding: 16px;
     border-radius: 30px;
@@ -254,30 +238,28 @@ canvas {
 
 .btn:hover,
 .btn:focus {
-    background-color: #3a3a3a;     /* Preto mais claro */
-    transform: translateY(-2px);   /* Efeito de levantar */
+    background-color: #3a3a3a;
+    transform: translateY(-2px);
     outline: none;
 }
 
 .btn:disabled {
-    background-color: #cccccc;     /* Cinza quando desativado */
+    background-color: #cccccc;
     cursor: not-allowed;
     transform: none;
 }
 
-/* Botão de reset */
 .btn-reset {
-    background-color: var(--light-gray); /* Cinza claro */
-    color: var(--text-color);      /* Cinza escuro */
-    border: 2px solid var(--primary-color); /* Borda preta */
-    margin-top: -10px;             /* Ajuste de posição */
+    background-color: var(--light-gray);
+    color: var(--text-color);
+    border: 2px solid var(--primary-color);
+    margin-top: -10px;
 }
 
-/* Botão "Voltar para o post" */
 .btn-linkedin {
     background-color: white;
     color: var(--primary-color);
-    border: 3px solid var(--linkedin-blue); /* Borda azul */
+    border: 3px solid var(--linkedin-blue);
     padding: 12px 20px;
     border-radius: 30px;
     font-weight: 600;
@@ -288,7 +270,7 @@ canvas {
     max-width: 280px;
     box-shadow: var(--box-shadow);
     margin-bottom: 15px;
-    display: none;                 /* Inicialmente oculto */
+    display: none;
     align-items: center;
     justify-content: center;
     gap: 10px;
@@ -296,7 +278,7 @@ canvas {
 
 .btn-linkedin:hover,
 .btn-linkedin:focus {
-    background-color: #f5f5f5;     /* Cinza bem claro no hover */
+    background-color: #f5f5f5;
     transform: translateY(-2px);
     outline: none;
 }
@@ -307,29 +289,27 @@ canvas {
     object-fit: contain;
 }
 
-/* Mensagem de erro */
 .error-message {
-    color: var(--error-red);       /* Vermelho */
+    color: var(--error-red);
     font-weight: 600;
     font-size: 0.9rem;
     text-align: center;
-    display: none;                 /* Só aparece quando há erro */
+    display: none;
     margin-top: 5px;
 }
 
-/* Modal de compartilhamento */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro semi-transparente */
+    background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;                /* Fica acima de tudo */
-    display: none;                /* Inicialmente oculto */
+    z-index: 1000;
+    display: none;
 }
 
 .modal-content {
@@ -368,9 +348,8 @@ canvas {
     color: var(--text-color);
 }
 
-/* Botão de compartilhar no modal */
 .btn-share {
-    background-color: var(--linkedin-blue); /* Azul do LinkedIn */
+    background-color: var(--linkedin-blue);
     color: white;
     border: none;
     padding: 12px 20px;
@@ -389,12 +368,11 @@ canvas {
 
 .btn-share:hover,
 .btn-share:focus {
-    background-color: #006097;     /* Azul mais escuro no hover */
+    background-color: #006097;
     transform: translateY(-2px);
     outline: none;
 }
 
-/* Botão de fechar modal */
 .btn-close {
     background-color: transparent;
     color: var(--text-color);
@@ -410,7 +388,6 @@ canvas {
     outline: none;
 }
 
-/* Classe para elementos acessíveis apenas para leitores de tela */
 .sr-only {
     position: absolute;
     width: 1px;
