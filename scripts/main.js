@@ -486,30 +486,39 @@ function shareOnLinkedIn() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // Solução universal que funciona na maioria dos dispositivos móveis
-        const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`;
-        
-        // Tenta abrir no app primeiro
-        if (/Android/i.test(navigator.userAgent)) {
-            // Android - tenta abrir via Intent
-            window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedText}&source=Montarsul#Intent;package=com.linkedin.android;scheme=https;end`;
+        // Solução que prioriza o app sem abrir o navegador primeiro
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            // iOS - tenta abrir diretamente no app
+            const appUrl = `linkedin://shareArticle?mini=true&url=${encodedUrl}&text=${encodedText}`;
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = appUrl;
+            document.body.appendChild(iframe);
             
-            // Fallback após 300ms
+            // Remove o iframe após um tempo
             setTimeout(() => {
-                if (!document.hidden) {
-                    window.open(shareUrl, '_blank');
-                }
-            }, 300);
+                document.body.removeChild(iframe);
+                // Verifica se o app não abriu
+                setTimeout(() => {
+                    if (!document.hidden) {
+                        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
+                    }
+                }, 500);
+            }, 200);
         } else {
-            // iOS - usa universal links
-            window.location.href = `linkedin://shareArticle?mini=true&url=${encodedUrl}&text=${encodedText}`;
-            
-            // Fallback após 300ms
-            setTimeout(() => {
-                if (!document.hidden) {
-                    window.open(shareUrl, '_blank');
-                }
-            }, 300);
+            // Android - usa Intent com fallback controlado
+            try {
+                window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedText}#Intent;package=com.linkedin.android;scheme=https;end`;
+                
+                // Fallback após 500ms se o app não abrir
+                setTimeout(() => {
+                    if (!document.hidden) {
+                        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
+                    }
+                }, 500);
+            } catch (e) {
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
+            }
         }
     } else {
         // Desktop
