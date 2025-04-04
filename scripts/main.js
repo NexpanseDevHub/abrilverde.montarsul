@@ -480,22 +480,28 @@ function shareOnLinkedIn() {
     }
     
     const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
-    const url = encodeURIComponent(window.location.href);
+    const url = "https://nexpansedevhub.github.io/abrilverdemontarsul/";
     
-    // URL universal para abrir no app ou web
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+    // Verifica se é mobile
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     
-    // Tenta abrir no app primeiro
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        const appUrl = `linkedin://sharing?shareText=${encodeURIComponent(text)}`;
+    if (isMobile) {
+        // Tenta abrir diretamente no app do LinkedIn com texto e URL
+        const appUrl = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
         
-        // Abre o app ou fallback para web
-        window.location.href = appUrl;
+        // Cria um iframe temporário para tentar abrir o app
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = appUrl;
+        document.body.appendChild(iframe);
+        
+        // Remove o iframe após um tempo
         setTimeout(() => {
-            window.open(linkedinUrl, '_blank');
-        }, 500);
+            document.body.removeChild(iframe);
+        }, 300);
     } else {
-        window.open(linkedinUrl, '_blank');
+        // Para desktop - compartilhamento web normal
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
     }
 }
 
