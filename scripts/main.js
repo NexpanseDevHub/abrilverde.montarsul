@@ -133,7 +133,6 @@ function setupEventListeners() {
     // Botões
     downloadBtn.addEventListener('click', downloadImage);
     resetBtn.addEventListener('click', resetImage);
-    shareBtn.addEventListener('click', ShareOnLinkedIn);
     document.getElementById('shareBtn').addEventListener('click', shareOnLinkedIn);
     
     // Botão de voltar para o post (configura o link corretamente)
@@ -390,23 +389,6 @@ function resetImage() {
 }
 
 // Compartilha no LinkedIn
-function loadTwibbon() {
-    twibbon.src = 'assets/twibbon.png';
-    twibbon.onload = function() {
-        drawInitialCanvas(); // Redesenha o canvas quando carregar
-    };
-    twibbon.onerror = function() {
-        console.error("Erro ao carregar twibbon");
-        // Fallback visual
-        ctx.fillStyle = '#005b24';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '20px Gill Sans';
-        ctx.textAlign = 'center';
-        ctx.fillText('Abril Verde', canvas.width/2, canvas.height/2 - 20);
-        ctx.fillText('Montarsul', canvas.width/2, canvas.height/2 + 20);
-    };
-}
 
 // Compartilhamento AUTOMÁTICO (funcionando)
 async function shareOnLinkedIn() {
