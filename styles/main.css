@@ -7,7 +7,7 @@
     --border-radius: 12px;
     --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     --transition: all 0.3s ease;
-    --linkedin-blue: #0077B5;
+    --linkedin-blue: #0074b4;
     --abril-verde: #005b24;
     --error-red: #d9534f;
 }
@@ -29,8 +29,6 @@ body {
     align-items: center;
     padding: 20px 15px;
     line-height: 1.5;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 .app-container {
@@ -41,7 +39,6 @@ body {
     align-items: center;
     gap: 20px;
     position: relative;
-    overflow: visible;
 }
 
 .header {
@@ -209,8 +206,6 @@ canvas {
     outline: none;
     border-radius: 3px;
     margin-top: 5px;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
 }
 
 .slider::-webkit-slider-thumb {
@@ -241,7 +236,6 @@ canvas {
     width: 100%;
     box-shadow: var(--box-shadow);
     text-align: center;
-    min-height: 48px;
 }
 
 .btn:hover,
@@ -249,10 +243,6 @@ canvas {
     background-color: #3a3a3a;
     transform: translateY(-2px);
     outline: none;
-}
-
-.btn:active {
-    transform: scale(0.98);
 }
 
 .btn:disabled {
@@ -286,7 +276,6 @@ canvas {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 48px;
 }
 
 .btn-linkedin:hover,
@@ -296,15 +285,10 @@ canvas {
     outline: none;
 }
 
-.btn-linkedin:active {
-    transform: scale(0.98);
-}
-
 .linkedin-icon {
     width: 24px;
     height: 24px;
     object-fit: contain;
-    pointer-events: none;
 }
 
 .error-message {
@@ -370,7 +354,7 @@ canvas {
     background-color: var(--linkedin-blue);
     color: white;
     border: none;
-    padding: 15px;
+    padding: 12px 20px;
     border-radius: 30px;
     font-weight: 600;
     font-size: 1rem;
@@ -382,12 +366,6 @@ canvas {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 48px;
-    -webkit-tap-highlight-color: transparent;
-    position: relative;
-    z-index: 10;
-    -webkit-user-select: none;
-    user-select: none;
 }
 
 .btn-share:hover,
@@ -397,19 +375,6 @@ canvas {
     outline: none;
 }
 
-.btn-share:active {
-    transform: scale(0.98);
-    background-color: #005a8a;
-    /* Efeito de clique mais visível */
-    transform: scale(0.95);
-    opacity: 0.9;
-}
-
-/* Garante que o texto não seja selecionável ao clicar */
-.btn-share span {
-    pointer-events: none;
-}
-
 .btn-close {
     background-color: transparent;
     color: var(--text-color);
@@ -417,7 +382,6 @@ canvas {
     margin-top: 15px;
     cursor: pointer;
     font-size: 0.9rem;
-    padding: 8px 16px;
 }
 
 .btn-close:hover,
@@ -436,24 +400,4 @@ canvas {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
-}
-
-@media (max-width: 480px) {
-    .app-container {
-        padding: 15px 10px;
-    }
-    
-    .btn, .btn-linkedin, .btn-share {
-        width: 100%;
-        max-width: none;
-    }
-    
-    .modal-content {
-        width: 95%;
-        padding: 20px 15px;
-    }
-    
-    #fileInputLabel {
-        padding: 12px 24px;
-    }
 }
