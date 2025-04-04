@@ -93,5 +93,14 @@
     </div>
 
     <script src="scripts/main.js"></script>
+    
+window.addEventListener('message', (event) => {
+    if (event.data.type === 'PASTE_TEXT') {
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.tagName === 'TEXTAREA') {
+            activeElement.value = event.data.text;
+        }
+    }
+});
 </body>
 </html>
