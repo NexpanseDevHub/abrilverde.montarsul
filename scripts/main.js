@@ -133,7 +133,7 @@ function setupEventListeners() {
     // Botões
     downloadBtn.addEventListener('click', downloadImage);
     resetBtn.addEventListener('click', resetImage);
-    document.getElementById('shareBtn').addEventListener('click', shareOnLinkedIn);
+    shareBtn.addEventListener('click', shareOnLinkedIn);
     
     // Botão de voltar para o post (configura o link corretamente)
     linkedinBtn.addEventListener('click', function() {
@@ -389,48 +389,17 @@ function resetImage() {
 }
 
 // Compartilha no LinkedIn
-
-// Compartilhamento AUTOMÁTICO (funcionando)
-async function shareOnLinkedIn() {
+function shareOnLinkedIn() {
     if (!lastGeneratedImage) {
-        showError('Gere a imagem primeiro');
+        showError('Por favor, gere uma imagem primeiro');
         return;
     }
-
-    showLoading(true);
     
-    try {
-        // 1. Converta para Blob
-        const blob = await fetch(lastGeneratedImage).then(res => res.blob());
-        
-        // 2. Upload para ImgBB
-        const formData = new FormData();
-        formData.append('image', blob);
-        
-        const response = await axios.post(
-            'https://api.imgbb.com/1/upload?key=43eb97cc06e100db23597afff13b561a',
-            formData
-        );
-
-        // 3. Compartilhe COM IMAGEM
-        const imageUrl = response.data.data.url;
-        window.open(
-            `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&source=${encodeURIComponent(imageUrl)}`,
-            '_blank'
-        );
-        
-    } catch (error) {
-        console.error("Erro no upload:", error);
-        // Fallback URGENTE (sem travar o sistema)
-        const text = "Eu apoio o Abril Verde! Baixe a imagem em: " + window.location.href;
-        window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
-            '_blank'
-        );
-    } finally {
-        showLoading(false);
-    }
+    const text = "Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos.";
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
 }
+
 // Baixa a imagem
 function downloadImage() {
     if (!img) return;
