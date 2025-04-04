@@ -32,6 +32,12 @@ let lastGeneratedImage = null;
 let animationFrameId = null;
 let originalImageData = null;
 
+// Variáveis para gestos de toque
+let initialDistance = null;
+let initialScale = 1;
+let initialRotation = 0;
+let initialAngle = 0;
+
 // Inicialização
 function init() {
     setupCanvas();
@@ -59,41 +65,28 @@ function setupCanvas() {
     window.addEventListener('resize', resizeCanvas);
 }
 
-// Desenha o estado inicial do canvas com qualidade
+// Desenha o estado inicial do canvas
 function drawInitialCanvas() {
-    // Limpa o canvas com fundo cinza claro
     ctx.fillStyle = '#f5f5f5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Desenha o twibbon se estiver carregado
     if (twibbon.complete && twibbon.naturalHeight !== 0) {
         ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(
-            twibbon,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
+        ctx.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
     }
     
-    // Mensagem central com alta qualidade
     ctx.fillStyle = '#005b24';
     ctx.font = 'bold 14px "Gill Sans", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.imageSmoothingQuality = 'high';
     ctx.fillText('Sua imagem aparecerá aqui', canvas.width/2, canvas.height/2);
 }
 
-// Carrega o twibbon com qualidade
+// Carrega o twibbon
 function loadTwibbon() {
     twibbon = new Image();
     twibbon.src = 'assets/twibbon.png';
     twibbon.onload = function() {
-        // Força o redesenho com qualidade
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
         drawInitialCanvas();
     };
     twibbon.onerror = function() {
@@ -129,8 +122,6 @@ function setupEventListeners() {
     downloadBtn.addEventListener('click', downloadImage);
     resetBtn.addEventListener('click', resetImage);
     shareBtn.addEventListener('click', shareOnLinkedIn);
-    
-    // Botão de voltar para o post
     linkedinBtn.addEventListener('click', function() {
         window.open('https://www.linkedin.com/company/montarsul-group/', '_blank');
     });
@@ -139,7 +130,6 @@ function setupEventListeners() {
     zoomSlider.addEventListener('input', function() {
         updateZoom(this.value);
     });
-    
     rotateSlider.addEventListener('input', function() {
         updateRotation(this.value);
     });
@@ -306,17 +296,74 @@ function endDrag() {
     isDragging = false;
 }
 
-// Versões para touch
+// Funções para gestos de toque
 function handleTouchStart(e) {
-    startDrag(e);
+    if (e.touches.length === 1) {
+        isDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX - offsetX;
+        startY = touch.clientY - offsetY;
+    } else if (e.touches.length === 2) {
+        isDragging = false;
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        initialDistance = Math.hypot(
+            touch2.clientX - touch1.clientX,
+            touch2.clientY - touch1.clientY
+        );
+        initialScale = scale;
+        initialAngle = Math.atan2(
+            touch2.clientY - touch1.clientY,
+            touch2.clientX - touch1.clientX
+        );
+        initialRotation = rotation;
+    }
+    e.preventDefault();
 }
 
 function handleTouchMove(e) {
-    drag(e);
+    if (!img) return;
+    
+    if (e.touches.length === 1 && isDragging) {
+        const touch = e.touches[0];
+        offsetX = touch.clientX - startX;
+        offsetY = touch.clientY - startY;
+        constrainOffsets();
+        draw();
+    } else if (e.touches.length === 2) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        
+        // Pinça (zoom)
+        const currentDistance = Math.hypot(
+            touch2.clientX - touch1.clientX,
+            touch2.clientY - touch1.clientY
+        );
+        
+        // Rotação
+        const currentAngle = Math.atan2(
+            touch2.clientY - touch1.clientY,
+            touch2.clientX - touch1.clientX
+        );
+        
+        if (initialDistance !== null) {
+            scale = initialScale * (currentDistance / initialDistance);
+            zoomSlider.value = Math.round((scale / minScale) * 100);
+            zoomValue.textContent = `${zoomSlider.value}%`;
+        }
+        
+        rotation = initialRotation + (currentAngle - initialAngle);
+        rotateSlider.value = Math.round(rotation * (180 / Math.PI));
+        rotationValue.textContent = `${rotateSlider.value}°`;
+        
+        draw();
+    }
+    e.preventDefault();
 }
 
 function handleTouchEnd() {
-    endDrag();
+    isDragging = false;
+    initialDistance = null;
 }
 
 // Controles por teclado
@@ -381,7 +428,7 @@ function resetImage() {
     draw();
 }
 
-// Função CORRIGIDA para compartilhar no LinkedIn
+// Função COMPARTILHAR CORRIGIDA
 function shareOnLinkedIn() {
     if (!lastGeneratedImage) {
         showError('Por favor, gere uma imagem primeiro');
@@ -393,7 +440,6 @@ function shareOnLinkedIn() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // Abre DIRETAMENTE no app (sem fallback para navegador)
         if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
             // iOS
             window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
@@ -401,9 +447,6 @@ function shareOnLinkedIn() {
             // Android
             window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}#Intent;package=com.linkedin.android;scheme=https;end`;
         }
-    } else {
-        // Desktop (comportamento opcional - pode remover se quiser)
-        alert("Compartilhamento otimizado para mobile. Abra no celular para compartilhar no app do LinkedIn.");
     }
 }
 
