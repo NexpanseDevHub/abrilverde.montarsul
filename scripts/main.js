@@ -71,19 +71,27 @@ function setupCanvas() {
 
 // Desenha o estado inicial do canvas (antes do upload)
 function drawInitialCanvas() {
+    // Fundo HD
     ctx.fillStyle = '#f5f5f5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Se o twibbon já carregou, desenha ele
+    // Twibbon com qualidade
     if (twibbon.complete && twibbon.naturalHeight !== 0) {
-        ctx.drawImage(
-            twibbon,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
     }
+    
+    // Texto melhorado
+    ctx.fillStyle = '#005b24';
+    ctx.font = 'bold 24px "Gill Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(255,255,255,0.8)';
+    ctx.shadowBlur = 4;
+    ctx.fillText('Sua imagem aparecerá aqui', canvas.width/2, canvas.height/2);
+    ctx.shadowColor = 'transparent';
+}
     
     // Mensagem central
     ctx.fillStyle = '#005b24';
@@ -123,9 +131,9 @@ function setupEventListeners() {
     document.addEventListener('mouseup', endDrag);
     
     // Eventos de toque para mobile
-    canvas.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchmove', handleTouchMove);
-    document.addEventListener('touchend', handleTouchEnd);
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd);
     
     // Teclado para acessibilidade
     document.addEventListener('keydown', handleKeyDown);
@@ -313,11 +321,28 @@ function endDrag() {
 
 // Versões para touch (mobile)
 function handleTouchStart(e) {
-    startDrag(e);
+    e.preventDefault();
+    if (!img) return;
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
 }
 
 function handleTouchMove(e) {
-    drag(e);
+    e.preventDefault();
+    if (!isDragging || !img) return;
+    
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    
+    offsetX += (currentX - startX) * 1.5;
+    offsetY += (currentY - startY) * 1.5;
+    
+    startX = currentX;
+    startY = currentY;
+    
+    constrainOffsets();
+    draw();
 }
 
 function handleTouchEnd() {
@@ -390,14 +415,16 @@ function resetImage() {
 
 // Compartilha no LinkedIn
 function shareOnLinkedIn() {
-    if (!lastGeneratedImage) {
-        showError('Por favor, gere uma imagem primeiro');
-        return;
-    }
+    const text = encodeURIComponent("🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul");
+    const url = encodeURIComponent(window.location.href);
     
-    const text = "🟢 Eu apoio o Abril Verde!Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    // Tenta abrir no app
+    window.location.href = `linkedin://shareArticle?mini=true&url=${url}&text=${text}`;
+    
+    // Se não tiver o app, abre no navegador após 300ms
+    setTimeout(() => {
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+    }, 300);
 }
 
 // Baixa a imagem
