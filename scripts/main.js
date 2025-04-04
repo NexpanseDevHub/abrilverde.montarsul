@@ -31,10 +31,6 @@ let canvasSize;
 let lastGeneratedImage = null;
 let animationFrameId = null;
 let originalImageData = null;
-let initialDistance = null;
-let initialScale = 1;
-let initialRotation = 0;
-let initialAngle = 0;
 
 // Inicialização
 function init() {
@@ -121,7 +117,7 @@ function setupEventListeners() {
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', endDrag);
     
-    // Eventos de toque melhorados para mobile
+    // Eventos de toque
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener('touchend', handleTouchEnd);
@@ -139,7 +135,7 @@ function setupEventListeners() {
         window.open('https://www.linkedin.com/company/montarsul-group/', '_blank');
     });
     
-    // Sliders com eventos touch melhorados
+    // Sliders
     zoomSlider.addEventListener('input', function() {
         updateZoom(this.value);
     });
@@ -147,24 +143,6 @@ function setupEventListeners() {
     rotateSlider.addEventListener('input', function() {
         updateRotation(this.value);
     });
-    
-    // Impede que eventos de toque nos sliders afetem o canvas
-    zoomSlider.addEventListener('touchstart', function(e) {
-        e.stopPropagation();
-    }, { passive: true });
-    
-    rotateSlider.addEventListener('touchstart', function(e) {
-        e.stopPropagation();
-    }, { passive: true });
-    
-    // Adiciona eventos touchmove para os sliders
-    zoomSlider.addEventListener('touchmove', function(e) {
-        e.stopPropagation();
-    }, { passive: true });
-    
-    rotateSlider.addEventListener('touchmove', function(e) {
-        e.stopPropagation();
-    }, { passive: true });
 }
 
 // Manipula o upload da imagem
@@ -208,9 +186,6 @@ function handleUpload(e) {
                 offsetY: offsetY
             };
             
-            // Força qualidade alta no desenho
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
             draw();
             showLoading(false);
         };
@@ -266,7 +241,7 @@ function constrainOffsets() {
     }
 }
 
-// Desenha a imagem e o twibbon com qualidade
+// Desenha a imagem e o twibbon
 function draw() {
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -277,32 +252,25 @@ function draw() {
         
         if (img) {
             ctx.save();
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
             ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
             ctx.rotate(rotation);
-            
-            const rad = Math.abs(rotation);
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
-            const coverScale = 1.2 / Math.max(cos, sin);
-            
-            const drawWidth = img.width * scale * coverScale;
-            const drawHeight = img.height * scale * coverScale;
-            
-            ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+            ctx.drawImage(
+                img,
+                -img.width * scale / 2,
+                -img.height * scale / 2,
+                img.width * scale,
+                img.height * scale
+            );
             ctx.restore();
         }
         
         if (twibbon.complete && twibbon.naturalHeight !== 0) {
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
         }
     });
 }
 
-// Funções para arrastar a imagem (melhoradas para mobile)
+// Funções para arrastar a imagem
 function startDrag(e) {
     if (!img) return;
     isDragging = true;
@@ -338,74 +306,17 @@ function endDrag() {
     isDragging = false;
 }
 
-// Versões para touch melhoradas
+// Versões para touch
 function handleTouchStart(e) {
-    if (e.touches.length === 1) {
-        startDrag(e);
-    } else if (e.touches.length === 2) {
-        // Prepara para zoom/rotação
-        isDragging = false;
-        initialDistance = getDistance(
-            e.touches[0].clientX, e.touches[0].clientY,
-            e.touches[1].clientX, e.touches[1].clientY
-        );
-        initialScale = scale;
-        initialRotation = rotation;
-        initialAngle = getAngle(
-            e.touches[0].clientX, e.touches[0].clientY,
-            e.touches[1].clientX, e.touches[1].clientY
-        );
-    }
+    startDrag(e);
 }
 
 function handleTouchMove(e) {
-    if (!img) return;
-    
-    if (e.touches.length === 1 && isDragging) {
-        drag(e);
-    } else if (e.touches.length === 2) {
-        // Calcula nova escala baseada na distância entre os dedos
-        const currentDistance = getDistance(
-            e.touches[0].clientX, e.touches[0].clientY,
-            e.touches[1].clientX, e.touches[1].clientY
-        );
-        
-        // Calcula novo ângulo para rotação
-        const currentAngle = getAngle(
-            e.touches[0].clientX, e.touches[0].clientY,
-            e.touches[1].clientX, e.touches[1].clientY
-        );
-        
-        // Atualiza escala e rotação
-        if (initialDistance !== null) {
-            scale = initialScale * (currentDistance / initialDistance);
-            zoomSlider.value = Math.round((scale / minScale) * 100);
-            zoomValue.textContent = `${zoomSlider.value}%`;
-        }
-        
-        rotation = initialRotation + (currentAngle - initialAngle) * (Math.PI / 180);
-        const rotationDegrees = rotation * (180 / Math.PI);
-        rotateSlider.value = Math.round(rotationDegrees);
-        rotationValue.textContent = `${Math.round(rotationDegrees)}°`;
-        
-        draw();
-    }
-    
-    e.preventDefault();
+    drag(e);
 }
 
 function handleTouchEnd() {
-    isDragging = false;
-    initialDistance = null;
-}
-
-// Funções auxiliares para calcular distância e ângulo
-function getDistance(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
-
-function getAngle(x1, y1, x2, y2) {
-    return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    endDrag();
 }
 
 // Controles por teclado
@@ -447,10 +358,8 @@ function handleKeyDown(e) {
         default: return;
     }
     
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', '[', ']'].includes(e.key)) {
-        constrainOffsets();
-        draw();
-    }
+    constrainOffsets();
+    draw();
     e.preventDefault();
 }
 
@@ -472,7 +381,7 @@ function resetImage() {
     draw();
 }
 
-// Função definitiva para compartilhar no LinkedIn
+// Função CORRIGIDA para compartilhar no LinkedIn
 function shareOnLinkedIn() {
     if (!lastGeneratedImage) {
         showError('Por favor, gere uma imagem primeiro');
@@ -481,48 +390,26 @@ function shareOnLinkedIn() {
 
     const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
     const url = "https://nexpansedevhub.github.io/abrilverdemontarsul/";
-    const encodedText = encodeURIComponent(text);
-    const encodedUrl = encodeURIComponent(url);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // Solução que prioriza o app sem abrir o navegador primeiro
-        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            // iOS - tenta abrir diretamente no app
-            const appUrl = `linkedin://shareArticle?mini=true&url=${encodedUrl}&text=${encodedText}`;
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = appUrl;
-            document.body.appendChild(iframe);
-            
-            // Remove o iframe após um tempo
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-                // Verifica se o app não abriu
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
-                    }
-                }, 500);
-            }, 200);
-        } else {
-            // Android - usa Intent com fallback controlado
-            try {
-                window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedText}#Intent;package=com.linkedin.android;scheme=https;end`;
-                
-                // Fallback após 500ms se o app não abrir
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
-                    }
-                }, 500);
-            } catch (e) {
-                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
-            }
-        }
+        // Tenta abrir diretamente no app do LinkedIn
+        const appUrl = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+        
+        // Fallback para web após 300ms se o app não abrir
+        const fallbackTimer = setTimeout(() => {
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+        }, 300);
+        
+        // Monitora se o app foi aberto com sucesso
+        window.addEventListener('blur', () => {
+            clearTimeout(fallbackTimer);
+        });
+        
+        window.location.href = appUrl;
     } else {
         // Desktop
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
     }
 }
 
@@ -547,24 +434,20 @@ function downloadImage() {
             const downloadOffsetY = offsetY * scaleRatio;
             
             tempCtx.save();
-            tempCtx.imageSmoothingEnabled = true;
-            tempCtx.imageSmoothingQuality = 'high';
             tempCtx.translate(downloadSize / 2 + downloadOffsetX, downloadSize / 2 + downloadOffsetY);
             tempCtx.rotate(rotation);
-            
-            const rad = Math.abs(rotation);
-            const coverScale = 1.2 / Math.max(Math.cos(rad), Math.sin(rad));
-            const drawWidth = img.width * downloadScale * coverScale;
-            const drawHeight = img.height * downloadScale * coverScale;
-            
-            tempCtx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+            tempCtx.drawImage(
+                img,
+                -img.width * downloadScale / 2,
+                -img.height * downloadScale / 2,
+                img.width * downloadScale,
+                img.height * downloadScale
+            );
             tempCtx.restore();
             
-            tempCtx.imageSmoothingEnabled = true;
-            tempCtx.imageSmoothingQuality = 'high';
             tempCtx.drawImage(twibbon, 0, 0, downloadSize, downloadSize);
             
-            lastGeneratedImage = tempCanvas.toDataURL('image/png', 1.0);
+            lastGeneratedImage = tempCanvas.toDataURL('image/png');
             
             const link = document.createElement('a');
             link.download = 'montarsul-abril-verde.png';
