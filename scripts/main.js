@@ -390,30 +390,15 @@ function resetImage() {
 
 // Compartilha no LinkedIn
 function shareOnLinkedIn() {
-    if (!lastGeneratedImage) {
-        showError('Por favor, gere uma imagem primeiro');
-        return;
-    }
-
-    const text = encodeURIComponent("Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos.");
-    const url = encodeURIComponent(window.location.href);
+    const text = `
+    Eu apoio o Abril Verde! 🟢 Segurança no trabalho é compromisso de todos.
     
-    // Tenta criar um preview (pode não funcionar em todos os casos)
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${text}`;
+    Crie sua foto personalizada aqui:
+    ${window.location.href}
     
-    // Fallback para instruções manuais
-    const fallback = () => {
-        alert('Adicione manualmente a imagem que você baixou ao compartilhar.');
-        window.open(linkedinUrl, '_blank', 'noopener,noreferrer');
-    };
+    (Baixe a imagem gerada e adicione ao post)`;
     
-    // Tenta usar a API (pode falhar)
-    try {
-        window.open(linkedinUrl, '_blank', 'noopener,noreferrer');
-        setTimeout(fallback, 3000); // Fallback após 3 segundos
-    } catch (e) {
-        fallback();
-    }
+    window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=Abril%20Verde%20Montarsul&summary=${encodeURIComponent(text)}`, '_blank');
 }
 // Baixa a imagem
 function downloadImage() {
