@@ -21,6 +21,30 @@
     <meta name="msapplication-TileColor" content="#005b24">
     <meta name="msapplication-config" content="assets/browserconfig.xml">
     <meta name="theme-color" content="#005b24">
+    <script type="text/javascript">
+    // Detecta se o LinkedIn app está instalado
+    function isLinkedInAppInstalled() {
+        return new Promise((resolve) => {
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'linkedin://';
+                iframe.onload = () => {
+                    document.body.removeChild(iframe);
+                    resolve(true);
+                };
+                iframe.onerror = () => {
+                    document.body.removeChild(iframe);
+                    resolve(false);
+                };
+                document.body.appendChild(iframe);
+            } else {
+                // Para Android, assumimos que está instalado
+                resolve(true);
+            }
+        });
+    }
+</script>
 </head>
 <body>
     <div class="app-container">
