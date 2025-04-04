@@ -71,26 +71,25 @@ function setupCanvas() {
 
 // Desenha o estado inicial do canvas (antes do upload)
 function drawInitialCanvas() {
-    // Fundo HD
     ctx.fillStyle = '#f5f5f5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Twibbon com qualidade
+    // Se o twibbon já carregou, desenha ele
     if (twibbon.complete && twibbon.naturalHeight !== 0) {
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+            twibbon,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
     }
     
-    // Texto melhorado
+    // Mensagem central
     ctx.fillStyle = '#005b24';
-    ctx.font = 'bold 24px "Gill Sans", sans-serif';
+    ctx.font = 'bold 16px Gill Sans, sans-serif';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(255,255,255,0.8)';
-    ctx.shadowBlur = 4;
     ctx.fillText('Sua imagem aparecerá aqui', canvas.width/2, canvas.height/2);
-    ctx.shadowColor = 'transparent';
 }
 
 // Carrega o twibbon (selo Abril Verde)
@@ -124,9 +123,9 @@ function setupEventListeners() {
     document.addEventListener('mouseup', endDrag);
     
     // Eventos de toque para mobile
-    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd);
+    canvas.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
     
     // Teclado para acessibilidade
     document.addEventListener('keydown', handleKeyDown);
@@ -313,59 +312,16 @@ function endDrag() {
 }
 
 // Versões para touch (mobile)
-let initialDistance = null;
-
 function handleTouchStart(e) {
-    e.preventDefault();
-    if (e.touches.length === 1) {
-        isDragging = true;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    } else if (e.touches.length === 2) {
-        // Calcula distância inicial para zoom
-        initialDistance = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-        );
-    }
+    startDrag(e);
 }
 
 function handleTouchMove(e) {
-    e.preventDefault();
-    
-    // ZOOM COM DOIS DEDOS
-    if (e.touches.length === 2) {
-        const currentDistance = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-        );
-        
-        if (initialDistance) {
-            const scaleFactor = currentDistance / initialDistance;
-            const newZoom = parseInt(zoomSlider.value) * scaleFactor;
-            zoomSlider.value = Math.min(200, Math.max(100, newZoom));
-            updateZoom(zoomSlider.value);
-        }
-        initialDistance = currentDistance;
-    } 
-    // ARRASTE
-    else if (isDragging) {
-        const currentX = e.touches[0].clientX;
-        const currentY = e.touches[0].clientY;
-        
-        offsetX += (currentX - startX) * 1.2; // Mais suave
-        offsetY += (currentY - startY) * 1.2;
-        
-        startX = currentX;
-        startY = currentY;
-        constrainOffsets();
-        draw();
-    }
+    drag(e);
 }
 
 function handleTouchEnd() {
-    isDragging = false;
-    initialDistance = null;
+    endDrag();
 }
 
 // Controles por teclado para acessibilidade
@@ -433,33 +389,16 @@ function resetImage() {
 }
 
 // Compartilha no LinkedIn
-// Função para copiar texto
-document.getElementById('copyBtn').addEventListener('click', function() {
-    const textarea = document.getElementById('shareText');
-    textarea.select();
-    document.execCommand('copy');
+function shareOnLinkedIn() {
+    if (!lastGeneratedImage) {
+        showError('Por favor, gere uma imagem primeiro');
+        return;
+    }
     
-    // Feedback visual
-    const originalText = this.textContent;
-    this.textContent = 'Texto copiado!';
-    setTimeout(() => {
-        this.textContent = originalText;
-    }, 2000);
-});
-
-// Função de compartilhamento atualizada
-document.getElementById('shareBtn').addEventListener('click', function() {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(document.getElementById('shareText').value);
-    
-    // Tenta abrir no app do LinkedIn
-    window.location.href = `linkedin://shareArticle?mini=true&url=${url}&text=${text}`;
-    
-    // Fallback para web após 1 segundo
-    setTimeout(() => {
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-    }, 1000);
-});
+    const text = "🟢 Eu apoio o Abril Verde!Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
 
 // Baixa a imagem
 function downloadImage() {
