@@ -384,6 +384,10 @@ canvas {
     gap: 10px;
     min-height: 48px;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+    z-index: 10;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .btn-share:hover,
@@ -396,6 +400,14 @@ canvas {
 .btn-share:active {
     transform: scale(0.98);
     background-color: #005a8a;
+    /* Efeito de clique mais visível */
+    transform: scale(0.95);
+    opacity: 0.9;
+}
+
+/* Garante que o texto não seja selecionável ao clicar */
+.btn-share span {
+    pointer-events: none;
 }
 
 .btn-close {
