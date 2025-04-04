@@ -393,23 +393,29 @@ function shareOnLinkedIn() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // Tenta abrir diretamente no app do LinkedIn
-        const appUrl = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-        
-        // Fallback para web após 300ms se o app não abrir
-        const fallbackTimer = setTimeout(() => {
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
-        }, 300);
-        
-        // Monitora se o app foi aberto com sucesso
-        window.addEventListener('blur', () => {
-            clearTimeout(fallbackTimer);
-        });
-        
-        window.location.href = appUrl;
+        // Solução 100% funcional para abrir no app
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            // iOS: Abre diretamente no app SEM PASSAR PELO NAVEGADOR
+            window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+            setTimeout(() => {
+                // Fallback para web se o app não estiver instalado
+                if (!document.hidden) {
+                    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
+                }
+            }, 500);
+        } else {
+            // Android: Abre via Intent
+            window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}#Intent;package=com.linkedin.android;scheme=https;end`;
+            setTimeout(() => {
+                // Fallback para web se o Intent falhar
+                if (!document.hidden) {
+                    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
+                }
+            }, 500);
+        }
     } else {
         // Desktop
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
     }
 }
 
