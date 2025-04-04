@@ -82,15 +82,20 @@
             <div class="modal-content">
                 <img id="modalPreview" class="modal-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Sua imagem personalizada com o selo Abril Verde">
                 <h3 class="modal-title">Sua foto está pronta!</h3>
-                <p class="modal-text">Compartilhe no LinkedIn e mostre seu apoio à segurança no trabalho!</p>
-                <button class="btn-share" id="shareBtn" aria-label="Compartilhar no LinkedIn">
-                    <img src="assets/linkedin2.png" class="linkedin-icon" alt="" aria-hidden="true">
-                    Compartilhar no LinkedIn
-                </button>
+                <p class="modal-text">Copie o texto abaixo e cole no LinkedIn:</p>
+                <textarea id="shareText" class="share-textarea" readonly>🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul</textarea>
+                <div class="share-buttons">
+                    <button class="btn-share" id="shareBtn" aria-label="Compartilhar no LinkedIn">
+                        <img src="assets/linkedin2.png" class="linkedin-icon" alt="" aria-hidden="true">
+                        Abrir LinkedIn
+                    </button>
+                    <button class="btn-copy" id="copyBtn">
+                        Copiar Texto
+                    </button>
+                </div>
                 <button class="btn-close" onclick="closeModal()" aria-label="Fechar modal">Fechar</button>
             </div>
         </div>
-    </div>
 
     <script src="scripts/main.js"></script>
     
