@@ -395,7 +395,7 @@ function shareOnLinkedIn() {
         return;
     }
     
-    const text = "Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos.";
+    const text = "🟢 Eu apoio o Abril Verde!Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
     const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
 }
