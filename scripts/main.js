@@ -92,13 +92,6 @@ function drawInitialCanvas() {
     ctx.fillText('Sua imagem aparecerá aqui', canvas.width/2, canvas.height/2);
     ctx.shadowColor = 'transparent';
 }
-    
-    // Mensagem central
-    ctx.fillStyle = '#005b24';
-    ctx.font = 'bold 16px Gill Sans, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Sua imagem aparecerá aqui', canvas.width/2, canvas.height/2);
-}
 
 // Carrega o twibbon (selo Abril Verde)
 function loadTwibbon() {
