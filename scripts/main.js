@@ -133,7 +133,7 @@ function setupEventListeners() {
     // Botões
     downloadBtn.addEventListener('click', downloadImage);
     resetBtn.addEventListener('click', resetImage);
-    shareBtn.addEventListener('click', shareOnLinkedIn);
+    shareBtn.addEventListener('click', inkedIn);
     
     // Botão de voltar para o post (configura o link corretamente)
     linkedinBtn.addEventListener('click', function() {
@@ -398,27 +398,37 @@ async function shareOnLinkedIn() {
     showLoading(true);
     
     try {
-        // 1. Converte a imagem base64 para Blob
+        // 1. Upload para o ImgBB
         const blob = await fetch(lastGeneratedImage).then(res => res.blob());
-        
-        // 2. Upload para o ImgBB (API gratuita)
         const formData = new FormData();
-        formData.append('image', blob, 'abril-verde.png');
+        formData.append('image', blob, 'abril-verde-montarsul.png');
         
         const response = await axios.post(
-            'https://api.imgbb.com/1/upload?key=43eb97cc06e100db23597afff13b561a', 
+            'https://api.imgbb.com/1/upload?key=43eb97cc06e100db23597afff13b561a',
             formData
         );
 
-        // 3. Compartilha com a URL da imagem
+        // 2. Prepara metadados para o LinkedIn
         const imageUrl = response.data.data.url;
-        const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&image=${encodeURIComponent(imageUrl)}`;
-        
-        window.open(shareUrl, '_blank', 'width=600,height=500');
-        
+        const pageUrl = window.location.href;
+        const title = "Abril Verde Montarsul";
+        const description = "Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos.";
+
+        // 3. Abre o compartilhamento com Open Graph
+        window.open(
+            `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(description)}&source=${encodeURIComponent(imageUrl)}`,
+            '_blank',
+            'width=600,height=500'
+        );
+
     } catch (error) {
-        console.error("Erro ao compartilhar:", error);
-        alert("O compartilhamento automático falhou. Baixe a imagem e adicione manualmente.");
+        console.error("Erro:", error);
+        // Fallback inteligente
+        alert('Para melhor qualidade, baixe a imagem e adicione manualmente ao post.');
+        window.open(
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
+            '_blank'
+        );
     } finally {
         showLoading(false);
     }
