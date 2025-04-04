@@ -551,4 +551,38 @@ function downloadImage() {
             showError('Erro ao gerar imagem');
             showLoading(false);
         }
-    }, 100
+    }, 100);
+}
+
+// Mostra o modal
+function showModal(imageData) {
+    modalPreview.src = imageData;
+    shareModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    linkedinBtn.style.display = 'flex';
+}
+
+// Fecha o modal
+function closeModal() {
+    shareModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Mostra/oculta o loading
+function showLoading(show) {
+    loadingOverlay.style.display = show ? 'flex' : 'none';
+}
+
+// Mostra mensagens de erro
+function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block';
+    setTimeout(hideError, 5000);
+}
+
+function hideError() {
+    errorMessage.style.display = 'none';
+}
+
+// Inicializa a aplicação
+document.addEventListener('DOMContentLoaded', init);
