@@ -434,26 +434,41 @@ function resetImage() {
 
 // Compartilha no LinkedIn
 function shareOnLinkedIn() {
-    const hashtag = "#AbrilVerdeMontarsul";
-    const textoPrincipal = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧";
+    const texto = `🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul`;
     
-    // URL encode mantendo emojis e quebras
-    const textoFormatado = encodeURIComponent(`${textoPrincipal}\n\n${hashtag}`);
-    const url = encodeURIComponent(window.location.href);
+    // Passo 1: Cria um textarea invisível com o texto
+    const textarea = document.createElement('textarea');
+    textarea.value = texto;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = 0;
+    document.body.appendChild(textarea);
     
-    // Link otimizado para mobile/desktop
-    const linkedinAppUrl = `linkedin://shareArticle?mini=true&url=${url}&text=${textoFormatado}`;
-    const linkedinWebUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${textoFormatado}`;
+    // Passo 2: Copia para área de transferência
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
     
-    // Tenta abrir no app primeiro
-    window.location.href = linkedinAppUrl;
+    // Passo 3: Abre o compartilhamento
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`;
     
-    // Fallback para web após 1.5s (tempo suficiente para o app abrir)
+    // Tenta abrir no app
+    window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}`;
+    
+    // Fallback para web
     setTimeout(() => {
-        if (!document.hidden) { // Só abre no web se o app não tiver aberto
-            window.open(linkedinWebUrl, '_blank');
-        }
-    }, 1500);
+        const linkedinWindow = window.open(url, '_blank');
+        
+        // Cola automaticamente após 1.5s (tempo para carregar)
+        setTimeout(() => {
+            linkedinWindow.postMessage({
+                type: 'PASTE_TEXT',
+                text: texto
+            }, '*');
+        }, 1500);
+    }, 300);
+    
+    // Mostra confirmação
+    alert('Texto copiado! Cole no LinkedIn quando abrir.');
 }
 
 // Baixa a imagem
