@@ -313,33 +313,59 @@ function endDrag() {
 }
 
 // Versões para touch (mobile)
+let initialDistance = null;
+
 function handleTouchStart(e) {
     e.preventDefault();
-    if (!img) return;
-    isDragging = true;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
+    if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+        // Calcula distância inicial para zoom
+        initialDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+    }
 }
 
 function handleTouchMove(e) {
     e.preventDefault();
-    if (!isDragging || !img) return;
     
-    const currentX = e.touches[0].clientX;
-    const currentY = e.touches[0].clientY;
-    
-    offsetX += (currentX - startX) * 1.5;
-    offsetY += (currentY - startY) * 1.5;
-    
-    startX = currentX;
-    startY = currentY;
-    
-    constrainOffsets();
-    draw();
+    // ZOOM COM DOIS DEDOS
+    if (e.touches.length === 2) {
+        const currentDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        
+        if (initialDistance) {
+            const scaleFactor = currentDistance / initialDistance;
+            const newZoom = parseInt(zoomSlider.value) * scaleFactor;
+            zoomSlider.value = Math.min(200, Math.max(100, newZoom));
+            updateZoom(zoomSlider.value);
+        }
+        initialDistance = currentDistance;
+    } 
+    // ARRASTE
+    else if (isDragging) {
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        
+        offsetX += (currentX - startX) * 1.2; // Mais suave
+        offsetY += (currentY - startY) * 1.2;
+        
+        startX = currentX;
+        startY = currentY;
+        constrainOffsets();
+        draw();
+    }
 }
 
 function handleTouchEnd() {
-    endDrag();
+    isDragging = false;
+    initialDistance = null;
 }
 
 // Controles por teclado para acessibilidade
@@ -408,16 +434,22 @@ function resetImage() {
 
 // Compartilha no LinkedIn
 function shareOnLinkedIn() {
-    const text = encodeURIComponent("🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul");
-    const url = encodeURIComponent(window.location.href);
+    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
+    const url = window.location.href;
     
-    // Tenta abrir no app
-    window.location.href = `linkedin://shareArticle?mini=true&url=${url}&text=${text}`;
-    
-    // Se não tiver o app, abre no navegador após 300ms
-    setTimeout(() => {
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-    }, 300);
+    // Tenta abrir no app primeiro
+    try {
+        window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+        
+        // Se não abrir em 1.5s, vai para web
+        setTimeout(() => {
+            if (!document.hidden) {
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+            }
+        }, 1500);
+    } catch (e) {
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+    }
 }
 
 // Baixa a imagem
