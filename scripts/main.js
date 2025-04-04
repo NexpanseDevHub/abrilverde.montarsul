@@ -59,12 +59,15 @@ function setupCanvas() {
     window.addEventListener('resize', resizeCanvas);
 }
 
-// Desenha o estado inicial do canvas
+// Desenha o estado inicial do canvas com qualidade
 function drawInitialCanvas() {
+    // Limpa o canvas com fundo cinza claro
     ctx.fillStyle = '#f5f5f5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
+    // Desenha o twibbon se estiver carregado
     if (twibbon.complete && twibbon.naturalHeight !== 0) {
+        ctx.imageSmoothingEnabled = true;
         ctx.drawImage(
             twibbon,
             0,
@@ -74,18 +77,23 @@ function drawInitialCanvas() {
         );
     }
     
-    // Mensagem central melhorada
+    // Mensagem central com alta qualidade
     ctx.fillStyle = '#005b24';
-    ctx.font = 'bold 14px "Gill Sans", sans-serif'; // Tamanho reduzido e fonte específica
+    ctx.font = 'bold 14px "Gill Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle'; // Centraliza verticalmente
+    ctx.textBaseline = 'middle';
+    ctx.imageSmoothingQuality = 'high';
     ctx.fillText('Sua imagem aparecerá aqui', canvas.width/2, canvas.height/2);
 }
 
-// Carrega o twibbon
+// Carrega o twibbon com qualidade
 function loadTwibbon() {
+    twibbon = new Image();
     twibbon.src = 'assets/twibbon.png';
     twibbon.onload = function() {
+        // Força o redesenho com qualidade
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         drawInitialCanvas();
     };
     twibbon.onerror = function() {
@@ -111,8 +119,8 @@ function setupEventListeners() {
     
     // Eventos de toque melhorados para mobile
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd);
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd);
     
     // Eventos de teclado
     document.addEventListener('keydown', handleKeyDown);
@@ -136,12 +144,21 @@ function setupEventListeners() {
         updateRotation(this.value);
     });
     
-    // Adiciona eventos touch para os sliders
+    // Impede que eventos de toque nos sliders afetem o canvas
     zoomSlider.addEventListener('touchstart', function(e) {
         e.stopPropagation();
     }, { passive: true });
     
     rotateSlider.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+    }, { passive: true });
+    
+    // Adiciona eventos touchmove para os sliders
+    zoomSlider.addEventListener('touchmove', function(e) {
+        e.stopPropagation();
+    }, { passive: true });
+    
+    rotateSlider.addEventListener('touchmove', function(e) {
         e.stopPropagation();
     }, { passive: true });
 }
@@ -187,6 +204,9 @@ function handleUpload(e) {
                 offsetY: offsetY
             };
             
+            // Força qualidade alta no desenho
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
             draw();
             showLoading(false);
         };
@@ -242,7 +262,7 @@ function constrainOffsets() {
     }
 }
 
-// Desenha a imagem e o twibbon
+// Desenha a imagem e o twibbon com qualidade
 function draw() {
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -253,6 +273,8 @@ function draw() {
         
         if (img) {
             ctx.save();
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
             ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
             ctx.rotate(rotation);
             
@@ -269,30 +291,39 @@ function draw() {
         }
         
         if (twibbon.complete && twibbon.naturalHeight !== 0) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
         }
     });
 }
 
-// Funções para arrastar a imagem
+// Funções para arrastar a imagem (melhoradas para mobile)
 function startDrag(e) {
     if (!img) return;
     isDragging = true;
-    const clientX = e.clientX || e.touches[0].clientX;
-    const clientY = e.clientY || e.touches[0].clientY;
-    startX = clientX - offsetX;
-    startY = clientY - offsetY;
+    
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    
+    if (clientX && clientY) {
+        startX = clientX - offsetX;
+        startY = clientY - offsetY;
+    }
+    
     e.preventDefault();
 }
 
 function drag(e) {
     if (!isDragging || !img) return;
     
-    const clientX = e.clientX || e.touches[0].clientX;
-    const clientY = e.clientY || e.touches[0].clientY;
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
     
-    offsetX = clientX - startX;
-    offsetY = clientY - startY;
+    if (clientX && clientY) {
+        offsetX = clientX - startX;
+        offsetY = clientY - startY;
+    }
     
     constrainOffsets();
     draw();
@@ -388,22 +419,33 @@ function shareOnLinkedIn() {
     }
     
     const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
+    const url = encodeURIComponent(window.location.href);
+    const fullText = encodeURIComponent(text + "\n\n" + window.location.href);
     
     // Verifica se é mobile
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     if (isMobile) {
-        // Tenta abrir diretamente no app do LinkedIn
-        const linkedinAppUrl = `linkedin://share?text=${encodeURIComponent(text)}`;
-        window.location.href = linkedinAppUrl;
+        // Tenta abrir diretamente no app do LinkedIn com intent
+        const linkedinAppUrl = `intent://www.linkedin.com/shareArticle?mini=true&url=${url}&text=${fullText}#Intent;package=com.linkedin.android;scheme=https;end`;
         
         // Fallback para web se o app não estiver instalado
+        const fallbackUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${text}`;
+        
+        // Cria um iframe temporário para tentar abrir o app
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = linkedinAppUrl;
+        document.body.appendChild(iframe);
+        
+        // Timeout para fallback
         setTimeout(() => {
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
+            document.body.removeChild(iframe);
+            window.open(fallbackUrl, '_blank');
         }, 500);
     } else {
         // Desktop - abre normalmente
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${text}`, '_blank');
     }
 }
 
@@ -428,6 +470,8 @@ function downloadImage() {
             const downloadOffsetY = offsetY * scaleRatio;
             
             tempCtx.save();
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
             tempCtx.translate(downloadSize / 2 + downloadOffsetX, downloadSize / 2 + downloadOffsetY);
             tempCtx.rotate(rotation);
             
@@ -439,9 +483,11 @@ function downloadImage() {
             tempCtx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
             tempCtx.restore();
             
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
             tempCtx.drawImage(twibbon, 0, 0, downloadSize, downloadSize);
             
-            lastGeneratedImage = tempCanvas.toDataURL('image/png');
+            lastGeneratedImage = tempCanvas.toDataURL('image/png', 1.0);
             
             const link = document.createElement('a');
             link.download = 'montarsul-abril-verde.png';
