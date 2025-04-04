@@ -133,7 +133,8 @@ function setupEventListeners() {
     // Botões
     downloadBtn.addEventListener('click', downloadImage);
     resetBtn.addEventListener('click', resetImage);
-    shareBtn.addEventListener('click', inkedIn);
+    shareBtn.addEventListener('click', ShareOnLinkedIn);
+    document.getElementById('shareBtn').addEventListener('click', shareOnLinkedIn);
     
     // Botão de voltar para o post (configura o link corretamente)
     linkedinBtn.addEventListener('click', function() {
@@ -389,42 +390,57 @@ function resetImage() {
 }
 
 // Compartilha no LinkedIn
+function loadTwibbon() {
+    twibbon.src = 'assets/twibbon.png';
+    twibbon.onload = function() {
+        drawInitialCanvas(); // Redesenha o canvas quando carregar
+    };
+    twibbon.onerror = function() {
+        console.error("Erro ao carregar twibbon");
+        // Fallback visual
+        ctx.fillStyle = '#005b24';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '20px Gill Sans';
+        ctx.textAlign = 'center';
+        ctx.fillText('Abril Verde', canvas.width/2, canvas.height/2 - 20);
+        ctx.fillText('Montarsul', canvas.width/2, canvas.height/2 + 20);
+    };
+}
+
+// Compartilhamento AUTOMÁTICO (funcionando)
 async function shareOnLinkedIn() {
     if (!lastGeneratedImage) {
-        showError('Por favor, gere uma imagem primeiro');
+        showError('Gere a imagem primeiro');
         return;
     }
 
     showLoading(true);
     
     try {
-        // 1. Upload para o ImgBB
+        // 1. Converta para Blob
         const blob = await fetch(lastGeneratedImage).then(res => res.blob());
+        
+        // 2. Upload para ImgBB
         const formData = new FormData();
-        formData.append('image', blob, 'abril-verde-montarsul.png');
+        formData.append('image', blob);
         
         const response = await axios.post(
             'https://api.imgbb.com/1/upload?key=43eb97cc06e100db23597afff13b561a',
             formData
         );
 
-        // 2. Prepara metadados para o LinkedIn
+        // 3. Compartilhe COM IMAGEM
         const imageUrl = response.data.data.url;
-        const pageUrl = window.location.href;
-        const title = "Abril Verde Montarsul";
-        const description = "Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos.";
-
-        // 3. Abre o compartilhamento com Open Graph
         window.open(
-            `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(description)}&source=${encodeURIComponent(imageUrl)}`,
-            '_blank',
-            'width=600,height=500'
+            `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&source=${encodeURIComponent(imageUrl)}`,
+            '_blank'
         );
-
+        
     } catch (error) {
-        console.error("Erro:", error);
-        // Fallback inteligente
-        alert('Para melhor qualidade, baixe a imagem e adicione manualmente ao post.');
+        console.error("Erro no upload:", error);
+        // Fallback URGENTE (sem travar o sistema)
+        const text = "Eu apoio o Abril Verde! Baixe a imagem em: " + window.location.href;
         window.open(
             `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
             '_blank'
