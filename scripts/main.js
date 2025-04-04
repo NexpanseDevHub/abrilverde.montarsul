@@ -136,7 +136,7 @@ function setupEventListeners() {
     
     // Botão de voltar para o post
     linkedinBtn.addEventListener('click', function() {
-        window.open('http://linkedin.com/company/montarsul-group/', '_blank');
+        window.open('https://www.linkedin.com/company/montarsul-group/', '_blank');
     });
     
     // Sliders com eventos touch melhorados
@@ -472,59 +472,46 @@ function resetImage() {
     draw();
 }
 
-// Compartilha no LinkedIn - versão melhorada para mobile
+// Função definitiva para compartilhar no LinkedIn
 function shareOnLinkedIn() {
     if (!lastGeneratedImage) {
         showError('Por favor, gere uma imagem primeiro');
         return;
     }
 
-    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
+    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa! #AbrilVerdeMontarsul";
     const url = "https://nexpansedevhub.github.io/abrilverdemontarsul/";
-    const encodedText = encodeURIComponent(text);
-    const encodedUrl = encodeURIComponent(url);
-
+    
+    // URL para web
+    const webUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+    
     // Verifica se é mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
+    
     if (isMobile) {
-        // Primeiro tenta abrir o app diretamente
-        const appUrl = `linkedin://shareArticle?mini=true&url=${encodedUrl}&text=${encodedText}`;
-        
-        // Fallback para intent no Android
-        const androidIntent = `intent://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&text=${encodedText}#Intent;package=com.linkedin.android;scheme=https;end`;
-        
-        // Fallback para universal link no iOS
-        const iosUniversalLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
-
-        // Tenta abrir o app diretamente
-        window.location.href = appUrl;
-        
-        // Fallback após pequeno delay
-        setTimeout(() => {
-            if (document.hidden) {
-                // Se o app abriu, não faz nada
-                return;
+        // Tenta abrir no app primeiro
+        try {
+            // Android
+            if (/Android/i.test(navigator.userAgent)) {
+                window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}#Intent;package=com.linkedin.android;scheme=https;end`;
+            } 
+            // iOS
+            else {
+                window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
             }
             
-            // Tenta abrir via intent (Android)
-            if (/Android/i.test(navigator.userAgent)) {
-                window.location.href = androidIntent;
-                
-                // Fallback final para web
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        window.open(iosUniversalLink, '_blank');
-                    }
-                }, 500);
-            } else {
-                // iOS - usa universal link
-                window.open(iosUniversalLink, '_blank');
-            }
-        }, 300);
+            // Fallback após 500ms se o app não abrir
+            setTimeout(() => {
+                if (!document.hidden) {
+                    window.open(webUrl, '_blank');
+                }
+            }, 500);
+        } catch (e) {
+            window.open(webUrl, '_blank');
+        }
     } else {
-        // Desktop - compartilhamento web normal
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, '_blank');
+        // Desktop
+        window.open(webUrl, '_blank');
     }
 }
 
