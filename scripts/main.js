@@ -433,43 +433,33 @@ function resetImage() {
 }
 
 // Compartilha no LinkedIn
-function shareOnLinkedIn() {
-    const texto = `🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul`;
-    
-    // Passo 1: Cria um textarea invisível com o texto
-    const textarea = document.createElement('textarea');
-    textarea.value = texto;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = 0;
-    document.body.appendChild(textarea);
-    
-    // Passo 2: Copia para área de transferência
+// Função para copiar texto
+document.getElementById('copyBtn').addEventListener('click', function() {
+    const textarea = document.getElementById('shareText');
     textarea.select();
     document.execCommand('copy');
-    document.body.removeChild(textarea);
     
-    // Passo 3: Abre o compartilhamento
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`;
-    
-    // Tenta abrir no app
-    window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}`;
-    
-    // Fallback para web
+    // Feedback visual
+    const originalText = this.textContent;
+    this.textContent = 'Texto copiado!';
     setTimeout(() => {
-        const linkedinWindow = window.open(url, '_blank');
-        
-        // Cola automaticamente após 1.5s (tempo para carregar)
-        setTimeout(() => {
-            linkedinWindow.postMessage({
-                type: 'PASTE_TEXT',
-                text: texto
-            }, '*');
-        }, 1500);
-    }, 300);
+        this.textContent = originalText;
+    }, 2000);
+});
+
+// Função de compartilhamento atualizada
+document.getElementById('shareBtn').addEventListener('click', function() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(document.getElementById('shareText').value);
     
-    // Mostra confirmação
-    alert('Texto copiado! Cole no LinkedIn quando abrir.');
-}
+    // Tenta abrir no app do LinkedIn
+    window.location.href = `linkedin://shareArticle?mini=true&url=${url}&text=${text}`;
+    
+    // Fallback para web após 1 segundo
+    setTimeout(() => {
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+    }, 1000);
+});
 
 // Baixa a imagem
 function downloadImage() {
