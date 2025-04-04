@@ -394,12 +394,49 @@ function shareOnLinkedIn() {
         showError('Por favor, gere uma imagem primeiro');
         return;
     }
-    
-    const text = "🟢 Eu apoio o Abril Verde!Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-}
 
+    // Primeiro fazemos o upload da imagem para um serviço temporário
+    showLoading(true);
+    
+    // Convertemos a imagem base64 para blob
+    fetch(lastGeneratedImage)
+        .then(res => res.blob())
+        .then(blob => {
+            // Criamos um formulário para upload
+            const formData = new FormData();
+            formData.append('image', blob, 'abril-verde-montarsul.png');
+
+            // Usamos o ImgBB como serviço temporário (API gratuita)
+            return fetch('https://api.imgbb.com/1/upload?key=43eb97cc06e100db23597afff13b561a', {
+                method: 'POST',
+                body: formData
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // URL da imagem no ImgBB
+                const imageUrl = data.data.url;
+                const text = encodeURIComponent("Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. Crie sua foto personalizada em: ");
+                const pageUrl = encodeURIComponent(window.location.href);
+                
+                // Abre o compartilhamento do LinkedIn com a imagem
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${pageUrl}&summary=${text}&source=${imageUrl}`, '_blank', 'noopener,noreferrer');
+            } else {
+                showError('Erro ao preparar imagem para compartilhamento');
+            }
+            showLoading(false);
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showError('Erro ao compartilhar');
+            showLoading(false);
+            
+            // Fallback: Compartilha sem imagem
+            const text = encodeURIComponent("Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. Crie sua foto personalizada em: " + window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${text}`, '_blank', 'noopener,noreferrer');
+        });
+}
 // Baixa a imagem
 function downloadImage() {
     if (!img) return;
