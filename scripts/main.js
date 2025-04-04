@@ -393,29 +393,17 @@ function shareOnLinkedIn() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // Solução 100% funcional para abrir no app
+        // Abre DIRETAMENTE no app (sem fallback para navegador)
         if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            // iOS: Abre diretamente no app SEM PASSAR PELO NAVEGADOR
+            // iOS
             window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-            setTimeout(() => {
-                // Fallback para web se o app não estiver instalado
-                if (!document.hidden) {
-                    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
-                }
-            }, 500);
         } else {
-            // Android: Abre via Intent
+            // Android
             window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}#Intent;package=com.linkedin.android;scheme=https;end`;
-            setTimeout(() => {
-                // Fallback para web se o Intent falhar
-                if (!document.hidden) {
-                    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
-                }
-            }, 500);
         }
     } else {
-        // Desktop
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
+        // Desktop (comportamento opcional - pode remover se quiser)
+        alert("Compartilhamento otimizado para mobile. Abra no celular para compartilhar no app do LinkedIn.");
     }
 }
 
