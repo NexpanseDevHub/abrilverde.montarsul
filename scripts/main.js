@@ -434,22 +434,26 @@ function resetImage() {
 
 // Compartilha no LinkedIn
 function shareOnLinkedIn() {
-    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
-    const url = window.location.href;
+    const hashtag = "#AbrilVerdeMontarsul";
+    const textoPrincipal = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧";
+    
+    // URL encode mantendo emojis e quebras
+    const textoFormatado = encodeURIComponent(`${textoPrincipal}\n\n${hashtag}`);
+    const url = encodeURIComponent(window.location.href);
+    
+    // Link otimizado para mobile/desktop
+    const linkedinAppUrl = `linkedin://shareArticle?mini=true&url=${url}&text=${textoFormatado}`;
+    const linkedinWebUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${textoFormatado}`;
     
     // Tenta abrir no app primeiro
-    try {
-        window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-        
-        // Se não abrir em 1.5s, vai para web
-        setTimeout(() => {
-            if (!document.hidden) {
-                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-            }
-        }, 1500);
-    } catch (e) {
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-    }
+    window.location.href = linkedinAppUrl;
+    
+    // Fallback para web após 1.5s (tempo suficiente para o app abrir)
+    setTimeout(() => {
+        if (!document.hidden) { // Só abre no web se o app não tiver aberto
+            window.open(linkedinWebUrl, '_blank');
+        }
+    }, 1500);
 }
 
 // Baixa a imagem
