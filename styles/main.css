@@ -421,3 +421,20 @@ canvas {
     white-space: nowrap;
     border-width: 0;
 }
+
+.canvas-container {
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+canvas {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Botões mais responsivos */
+.btn, .btn-share {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
