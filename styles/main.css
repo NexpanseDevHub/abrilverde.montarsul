@@ -404,3 +404,32 @@ canvas {
     white-space: nowrap;
     border-width: 0;
 }
+
+/* Garante que os botões sejam tocáveis em mobile */
+.btn, .btn-linkedin, .btn-share {
+    min-height: 48px; /* Tamanho mínimo para toque */
+    padding: 12px 24px;
+}
+
+/* Melhora a experiência de toque nos sliders */
+.slider {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Ajustes para telas pequenas */
+@media (max-width: 480px) {
+    .app-container {
+        padding: 15px 10px;
+    }
+    
+    .btn, .btn-linkedin, .btn-share {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 20px 15px;
+    }
+}
