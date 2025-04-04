@@ -122,6 +122,8 @@ canvas {
     height: 100%;
     touch-action: none;
     background-color: var(--light-gray);
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .loading-overlay {
