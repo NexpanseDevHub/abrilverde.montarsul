@@ -479,39 +479,41 @@ function shareOnLinkedIn() {
         return;
     }
 
-    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa! #AbrilVerdeMontarsul";
+    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
     const url = "https://nexpansedevhub.github.io/abrilverdemontarsul/";
-    
-    // URL para web
-    const webUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-    
-    // Verifica se é mobile
+    const encodedText = encodeURIComponent(text);
+    const encodedUrl = encodeURIComponent(url);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    
+
     if (isMobile) {
+        // Solução universal que funciona na maioria dos dispositivos móveis
+        const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`;
+        
         // Tenta abrir no app primeiro
-        try {
-            // Android
-            if (/Android/i.test(navigator.userAgent)) {
-                window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}#Intent;package=com.linkedin.android;scheme=https;end`;
-            } 
-            // iOS
-            else {
-                window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-            }
+        if (/Android/i.test(navigator.userAgent)) {
+            // Android - tenta abrir via Intent
+            window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedText}&source=Montarsul#Intent;package=com.linkedin.android;scheme=https;end`;
             
-            // Fallback após 500ms se o app não abrir
+            // Fallback após 300ms
             setTimeout(() => {
                 if (!document.hidden) {
-                    window.open(webUrl, '_blank');
+                    window.open(shareUrl, '_blank');
                 }
-            }, 500);
-        } catch (e) {
-            window.open(webUrl, '_blank');
+            }, 300);
+        } else {
+            // iOS - usa universal links
+            window.location.href = `linkedin://shareArticle?mini=true&url=${encodedUrl}&text=${encodedText}`;
+            
+            // Fallback após 300ms
+            setTimeout(() => {
+                if (!document.hidden) {
+                    window.open(shareUrl, '_blank');
+                }
+            }, 300);
         }
     } else {
         // Desktop
-        window.open(webUrl, '_blank');
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
     }
 }
 
