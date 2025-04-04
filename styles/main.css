@@ -1,1 +1,423 @@
+/* Variáveis de cores e estilos reutilizáveis */
+:root {
+    --primary-color: #252525;       /* Preto para textos/botões */
+    --secondary-color: #FFFFFF;     /* Branco para fundo */
+    --accent-color: #4CAF50;        /* Verde (não usado no seu design) */
+    --text-color: #333333;          /* Cinza escuro para descrição */
+    --light-gray: #f5f5f5;          /* Fundo cinza claro */
+    --border-radius: 12px;          /* Cantos arredondados */
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Sombra suave */
+    --transition: all 0.3s ease;    /* Transições suaves */
+    --linkedin-blue: #0074b4;       /* Azul do LinkedIn */
+    --abril-verde: #005b24;         /* Verde escuro Abril Verde */
+    --error-red: #d9534f;           /* Vermelho para erros */
+}
 
+/* Reset básico para todos os elementos */
+* {
+    box-sizing: border-box;         /* Facilita cálculo de tamanhos */
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Remove highlight em mobile */
+}
+
+/* Estilos do corpo da página */
+body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif; /* Fonte Gill Sans */
+    background-color: var(--secondary-color); /* Fundo branco */
+    color: var(--primary-color);    /* Cor de texto principal */
+    min-height: 100vh;             /* Mínimo altura da tela */
+    display: flex;
+    flex-direction: column;         /* Organiza em coluna */
+    align-items: center;            /* Centraliza horizontal */
+    padding: 20px 15px;            /* Espaçamento interno */
+    line-height: 1.5;              /* Espaçamento entre linhas */
+}
+
+/* Container principal da aplicação */
+.app-container {
+    width: 100%;
+    max-width: 500px;              /* Largura máxima conforme pedido */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;                     /* Espaço entre elementos */
+    position: relative;
+}
+
+/* Cabeçalho com logo e título */
+.header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.logo {
+    width: 180px;                  /* Tamanho fixo para a logo */
+    height: auto;                  /* Mantém proporção */
+    object-fit: contain;           /* Garante que não distorça */
+}
+
+h1 {
+    color: var(--primary-color);
+    font-weight: 600;              /* Negrito como especificado */
+    font-size: clamp(1.5rem, 5vw, 2rem); /* Tamanho responsivo */
+    margin-top: 10px;
+}
+
+.description {
+    color: var(--text-color);      /* Cinza escuro */
+    font-size: clamp(0.9rem, 3vw, 1.05rem); /* Tamanho responsivo */
+    max-width: 500px;
+}
+
+/* Área de upload */
+.upload-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Botão de selecionar foto */
+#fileInputLabel {
+    display: inline-block;
+    padding: 14px 28px;
+    background-color: var(--primary-color); /* Preto */
+    color: var(--secondary-color); /* Branco */
+    border-radius: 30px;           /* Bordas mais arredondadas */
+    cursor: pointer;
+    font-weight: 600;
+    font-size: clamp(0.9rem, 3.5vw, 1rem); /* Responsivo */
+    transition: var(--transition);
+    width: 100%;
+    max-width: 280px;              /* Largura máxima */
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    border: none;
+}
+
+#fileInputLabel:hover, 
+#fileInputLabel:focus {
+    background-color: #3a3a3a;     /* Preto mais claro no hover */
+    transform: translateY(-2px);   /* Efeito de levantar */
+    outline: none;                 /* Remove contorno padrão */
+}
+
+/* Esconde o input de arquivo real */
+#fileInput {
+    display: none;
+}
+
+/* Container do canvas (área da imagem) */
+.canvas-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;             /* Mantém proporção quadrada */
+    border-radius: var(--border-radius);
+    overflow: hidden;               /* Esconde bordas arredondadas */
+    box-shadow: var(--box-shadow);
+    background-color: var(--light-gray); /* Fundo cinza claro */
+    touch-action: none;            /* Melhora interação em mobile */
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    background-color: var(--light-gray);
+}
+
+/* Overlay de carregamento */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9); /* Branco semi-transparente */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;                   /* Fica acima de tudo */
+    display: none;                 /* Inicialmente oculto */
+    gap: 15px;
+}
+
+/* Animação de carregamento */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid var(--primary-color); /* Preto */
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Controles (inicialmente ocultos) */
+.controls {
+    width: 100%;
+    display: none;                 /* Será mostrado após upload */
+    flex-direction: column;
+    gap: 20px;
+    background-color: var(--secondary-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* Estilos dos sliders (zoom/rotação) */
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.slider-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.slider-value {
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.slider {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e0e0e0;           /* Barra cinza */
+    outline: none;
+    border-radius: 3px;
+    margin-top: 5px;
+}
+
+/* Estilo do "ponteiro" do slider */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary-color); /* Preto */
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);         /* Aumenta no hover */
+}
+
+/* Estilos base para botões */
+.btn {
+    background-color: var(--primary-color); /* Preto */
+    color: var(--secondary-color); /* Branco */
+    border: none;
+    padding: 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+}
+
+.btn:hover,
+.btn:focus {
+    background-color: #3a3a3a;     /* Preto mais claro */
+    transform: translateY(-2px);   /* Efeito de levantar */
+    outline: none;
+}
+
+.btn:disabled {
+    background-color: #cccccc;     /* Cinza quando desativado */
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Botão de reset */
+.btn-reset {
+    background-color: var(--light-gray); /* Cinza claro */
+    color: var(--text-color);      /* Cinza escuro */
+    border: 2px solid var(--primary-color); /* Borda preta */
+    margin-top: -10px;             /* Ajuste de posição */
+}
+
+/* Botão "Voltar para o post" */
+.btn-linkedin {
+    background-color: white;
+    color: var(--primary-color);
+    border: 3px solid var(--linkedin-blue); /* Borda azul */
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    max-width: 280px;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 15px;
+    display: none;                 /* Inicialmente oculto */
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-linkedin:hover,
+.btn-linkedin:focus {
+    background-color: #f5f5f5;     /* Cinza bem claro no hover */
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.linkedin-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* Mensagem de erro */
+.error-message {
+    color: var(--error-red);       /* Vermelho */
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    display: none;                 /* Só aparece quando há erro */
+    margin-top: 5px;
+}
+
+/* Modal de compartilhamento */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;                /* Fica acima de tudo */
+    display: none;                /* Inicialmente oculto */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.modal-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.modal-text {
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+/* Botão de compartilhar no modal */
+.btn-share {
+    background-color: var(--linkedin-blue); /* Azul do LinkedIn */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-share:hover,
+.btn-share:focus {
+    background-color: #006097;     /* Azul mais escuro no hover */
+    transform: translateY(-2px);
+    outline: none;
+}
+
+/* Botão de fechar modal */
+.btn-close {
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    margin-top: 15px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-close:hover,
+.btn-close:focus {
+    color: var(--primary-color);
+    outline: none;
+}
+
+/* Classe para elementos acessíveis apenas para leitores de tela */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
