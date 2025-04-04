@@ -1,3 +1,4 @@
+
 /* Variáveis de cores e estilos reutilizáveis */
 :root {
     --primary-color: #252525;       /* Preto para textos/botões */
@@ -420,62 +421,4 @@ canvas {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
-}
-
-.canvas-container {
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-canvas {
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
-
-/* Botões mais responsivos */
-.btn, .btn-share {
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-}
-
-.canvas-container {
-    touch-action: none;
-    -webkit-overflow-scrolling: touch;
-}
-
-canvas {
-    image-rendering: crisp-edges;
-}
-
-/* Estilos para o modal de compartilhamento */
-.share-textarea {
-    width: 100%;
-    min-height: 100px;
-    margin: 15px 0;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    resize: none;
-    font-family: 'Gill Sans', sans-serif;
-}
-
-.share-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.btn-copy {
-    background-color: #f0f0f0;
-    color: #333;
-    border: 1px solid #ccc;
-    padding: 10px 15px;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn-copy:hover {
-    background-color: #e0e0e0;
 }
