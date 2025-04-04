@@ -31,6 +31,10 @@ let canvasSize;
 let lastGeneratedImage = null;
 let animationFrameId = null;
 let originalImageData = null;
+let initialDistance = null;
+let initialScale = 1;
+let initialRotation = 0;
+let initialAngle = 0;
 
 // Inicialização
 function init() {
@@ -336,15 +340,72 @@ function endDrag() {
 
 // Versões para touch melhoradas
 function handleTouchStart(e) {
-    startDrag(e);
+    if (e.touches.length === 1) {
+        startDrag(e);
+    } else if (e.touches.length === 2) {
+        // Prepara para zoom/rotação
+        isDragging = false;
+        initialDistance = getDistance(
+            e.touches[0].clientX, e.touches[0].clientY,
+            e.touches[1].clientX, e.touches[1].clientY
+        );
+        initialScale = scale;
+        initialRotation = rotation;
+        initialAngle = getAngle(
+            e.touches[0].clientX, e.touches[0].clientY,
+            e.touches[1].clientX, e.touches[1].clientY
+        );
+    }
 }
 
 function handleTouchMove(e) {
-    drag(e);
+    if (!img) return;
+    
+    if (e.touches.length === 1 && isDragging) {
+        drag(e);
+    } else if (e.touches.length === 2) {
+        // Calcula nova escala baseada na distância entre os dedos
+        const currentDistance = getDistance(
+            e.touches[0].clientX, e.touches[0].clientY,
+            e.touches[1].clientX, e.touches[1].clientY
+        );
+        
+        // Calcula novo ângulo para rotação
+        const currentAngle = getAngle(
+            e.touches[0].clientX, e.touches[0].clientY,
+            e.touches[1].clientX, e.touches[1].clientY
+        );
+        
+        // Atualiza escala e rotação
+        if (initialDistance !== null) {
+            scale = initialScale * (currentDistance / initialDistance);
+            zoomSlider.value = Math.round((scale / minScale) * 100);
+            zoomValue.textContent = `${zoomSlider.value}%`;
+        }
+        
+        rotation = initialRotation + (currentAngle - initialAngle) * (Math.PI / 180);
+        const rotationDegrees = rotation * (180 / Math.PI);
+        rotateSlider.value = Math.round(rotationDegrees);
+        rotationValue.textContent = `${Math.round(rotationDegrees)}°`;
+        
+        draw();
+    }
+    
+    e.preventDefault();
 }
 
 function handleTouchEnd() {
-    endDrag();
+    isDragging = false;
+    initialDistance = null;
+}
+
+// Funções auxiliares para calcular distância e ângulo
+function getDistance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+function getAngle(x1, y1, x2, y2) {
+    return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 }
 
 // Controles por teclado
@@ -420,32 +481,21 @@ function shareOnLinkedIn() {
     
     const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
     const url = encodeURIComponent(window.location.href);
-    const fullText = encodeURIComponent(text + "\n\n" + window.location.href);
     
-    // Verifica se é mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // URL universal para abrir no app ou web
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
     
-    if (isMobile) {
-        // Tenta abrir diretamente no app do LinkedIn com intent
-        const linkedinAppUrl = `intent://www.linkedin.com/shareArticle?mini=true&url=${url}&text=${fullText}#Intent;package=com.linkedin.android;scheme=https;end`;
+    // Tenta abrir no app primeiro
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const appUrl = `linkedin://sharing?shareText=${encodeURIComponent(text)}`;
         
-        // Fallback para web se o app não estiver instalado
-        const fallbackUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${text}`;
-        
-        // Cria um iframe temporário para tentar abrir o app
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = linkedinAppUrl;
-        document.body.appendChild(iframe);
-        
-        // Timeout para fallback
+        // Abre o app ou fallback para web
+        window.location.href = appUrl;
         setTimeout(() => {
-            document.body.removeChild(iframe);
-            window.open(fallbackUrl, '_blank');
+            window.open(linkedinUrl, '_blank');
         }, 500);
     } else {
-        // Desktop - abre normalmente
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${text}`, '_blank');
+        window.open(linkedinUrl, '_blank');
     }
 }
 
@@ -501,38 +551,4 @@ function downloadImage() {
             showError('Erro ao gerar imagem');
             showLoading(false);
         }
-    }, 100);
-}
-
-// Mostra o modal
-function showModal(imageData) {
-    modalPreview.src = imageData;
-    shareModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    linkedinBtn.style.display = 'flex';
-}
-
-// Fecha o modal
-function closeModal() {
-    shareModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-// Mostra/oculta o loading
-function showLoading(show) {
-    loadingOverlay.style.display = show ? 'flex' : 'none';
-}
-
-// Mostra mensagens de erro
-function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.style.display = 'block';
-    setTimeout(hideError, 5000);
-}
-
-function hideError() {
-    errorMessage.style.display = 'none';
-}
-
-// Inicializa a aplicação
-document.addEventListener('DOMContentLoaded', init);
+    }, 100
