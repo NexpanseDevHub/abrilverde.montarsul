@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abril Verde Montarsul</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Gill+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <img src="assets/logo.png" alt="Logo Montarsul" class="logo">
+            <h1>Abril Verde Montarsul</h1>
+            <p class="description">Faça o upload da sua foto e ajuste a posição para criar sua foto de perfil personalizada</p>
+        </div>
+        
+        <button class="btn-linkedin" id="linkedinBtn" aria-label="Voltar para o post no LinkedIn">
+            <img src="assets/linkedin1.png" class="linkedin-icon" alt="" aria-hidden="true">
+            Voltar para o post
+        </button>
+        
+        <div class="upload-container">
+            <label for="fileInput" id="fileInputLabel" aria-label="Selecionar foto para upload">Selecionar Foto</label>
+            <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" aria-describedby="fileInputHelp">
+            <span id="fileInputHelp" class="sr-only">Aceitamos arquivos JPEG, PNG ou WebP com até 5MB</span>
+            <div class="error-message" id="errorMessage" role="alert"></div>
+        </div>
+        
+        <div class="canvas-container" id="canvasContainer">
+            <canvas id="canvas" role="img" aria-description="Área de visualização da imagem com selo Abril Verde"></canvas>
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner" aria-hidden="true"></div>
+                <div class="loading-text">Processando imagem...</div>
+            </div>
+        </div>
+        
+        <div class="controls" id="controls">
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span class="slider-label">Zoom</span>
+                    <span class="slider-value" id="zoomValue">100%</span>
+                </div>
+                <input type="range" min="100" max="200" value="100" class="slider" id="zoomSlider" aria-label="Ajuste de zoom da imagem">
+            </div>
+            
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span class="slider-label">Rotação</span>
+                    <span class="slider-value" id="rotationValue">0°</span>
+                </div>
+                <input type="range" min="-180" max="180" value="0" class="slider" id="rotateSlider" aria-label="Ajuste de rotação da imagem">
+            </div>
+            
+            <button class="btn" id="downloadBtn" disabled aria-label="Baixar imagem personalizada">Baixar Imagem</button>
+            <button class="btn btn-reset" id="resetBtn" disabled aria-label="Redefinir imagem para configurações padrão">Redefinir</button>
+        </div>
+        
+        <!-- Modal de compartilhamento -->
+        <div class="modal-overlay" id="shareModal">
+            <div class="modal-content">
+                <img id="modalPreview" class="modal-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Sua imagem personalizada com o selo Abril Verde">
+                <h3 class="modal-title">Sua foto está pronta!</h3>
+                <p class="modal-text">Compartilhe no LinkedIn e mostre seu apoio à segurança no trabalho!</p>
+                <button class="btn-share" id="shareBtn" aria-label="Compartilhar no LinkedIn">
+                    <img src="assets/linkedin2.png" class="linkedin-icon" alt="" aria-hidden="true">
+                    Compartilhar no LinkedIn
+                </button>
+                <button class="btn-close" onclick="closeModal()" aria-label="Fechar modal">Fechar</button>
+            </div>
+        </div>
+    </div>
 
+    <script src="scripts/main.js"></script>
+</body>
+</html>
