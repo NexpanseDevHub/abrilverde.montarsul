@@ -1,4 +1,4 @@
-// Elementos do DOM que vamos usar
+// Elementos do DOM
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 const fileInput = document.getElementById('fileInput');
@@ -17,39 +17,30 @@ const modalPreview = document.getElementById('modalPreview');
 const shareBtn = document.getElementById('shareBtn');
 const canvasContainer = document.getElementById('canvasContainer');
 
-// Variáveis de estado da aplicação
-let img = null; // Armazena a imagem do usuário
-let twibbon = new Image(); // Armazena o selo Abril Verde
-let minScale = 1; // Escala mínima (100%)
-let scale = 1; // Escala atual da imagem
-let rotation = 0; // Rotação atual em radianos
-let offsetX = 0; // Deslocamento horizontal
-let offsetY = 0; // Deslocamento vertical
-let isDragging = false; // Flag para arrastar a imagem
-let startX, startY; // Posições iniciais do arrasto
-let canvasSize; // Tamanho do canvas
-let lastGeneratedImage = null; // Última imagem gerada para download
-let animationFrameId = null; // ID para controle de animação
-let originalImageData = null; // Dados originais para reset
+// Variáveis de estado
+let img = null;
+let twibbon = new Image();
+let minScale = 1;
+let scale = 1;
+let rotation = 0;
+let offsetX = 0;
+let offsetY = 0;
+let isDragging = false;
+let startX, startY;
+let canvasSize;
+let lastGeneratedImage = null;
+let animationFrameId = null;
+let originalImageData = null;
 
-// Inicialização da aplicação
+// Inicialização
 function init() {
-    console.log('Iniciando aplicativo...');
-    
-    // Configura o canvas responsivo
     setupCanvas();
-    
-    // Configura os listeners de eventos
     setupEventListeners();
-    
-    // Mostra estado inicial
     drawInitialCanvas();
-    
-    // Carrega o twibbon (selo Abril Verde)
     loadTwibbon();
 }
 
-// Configura o canvas com tamanho responsivo
+// Configura o canvas responsivo
 function setupCanvas() {
     function resizeCanvas() {
         const container = document.querySelector('.canvas-container');
@@ -64,17 +55,15 @@ function setupCanvas() {
         }
     }
     
-    // Configura o tamanho inicial e listener para redimensionamento
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 }
 
-// Desenha o estado inicial do canvas (antes do upload)
+// Desenha o estado inicial do canvas
 function drawInitialCanvas() {
     ctx.fillStyle = '#f5f5f5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Se o twibbon já carregou, desenha ele
     if (twibbon.complete && twibbon.naturalHeight !== 0) {
         ctx.drawImage(
             twibbon,
@@ -85,23 +74,22 @@ function drawInitialCanvas() {
         );
     }
     
-    // Mensagem central
+    // Mensagem central melhorada
     ctx.fillStyle = '#005b24';
-    ctx.font = 'bold 16px Gill Sans, sans-serif';
+    ctx.font = 'bold 14px "Gill Sans", sans-serif'; // Tamanho reduzido e fonte específica
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle'; // Centraliza verticalmente
     ctx.fillText('Sua imagem aparecerá aqui', canvas.width/2, canvas.height/2);
 }
 
-// Carrega o twibbon (selo Abril Verde)
+// Carrega o twibbon
 function loadTwibbon() {
     twibbon.src = 'assets/twibbon.png';
     twibbon.onload = function() {
-        // Redesenha o canvas quando o twibbon carregar
         drawInitialCanvas();
     };
     twibbon.onerror = function() {
         console.error('Erro ao carregar o twibbon');
-        // Fallback - desenha um placeholder simples
         ctx.fillStyle = '#005b24';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#ffffff';
@@ -114,20 +102,19 @@ function loadTwibbon() {
 
 // Configura os listeners de eventos
 function setupEventListeners() {
-    // Upload de imagem
     fileInput.addEventListener('change', handleUpload);
     
-    // Eventos de arrastar para desktop
+    // Eventos de mouse
     canvas.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', endDrag);
     
-    // Eventos de toque para mobile
-    canvas.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchmove', handleTouchMove);
+    // Eventos de toque melhorados para mobile
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
     
-    // Teclado para acessibilidade
+    // Eventos de teclado
     document.addEventListener('keydown', handleKeyDown);
     
     // Botões
@@ -135,10 +122,28 @@ function setupEventListeners() {
     resetBtn.addEventListener('click', resetImage);
     shareBtn.addEventListener('click', shareOnLinkedIn);
     
-    // Botão de voltar para o post (configura o link corretamente)
+    // Botão de voltar para o post
     linkedinBtn.addEventListener('click', function() {
         window.open('http://linkedin.com/company/montarsul-group/', '_blank');
     });
+    
+    // Sliders com eventos touch melhorados
+    zoomSlider.addEventListener('input', function() {
+        updateZoom(this.value);
+    });
+    
+    rotateSlider.addEventListener('input', function() {
+        updateRotation(this.value);
+    });
+    
+    // Adiciona eventos touch para os sliders
+    zoomSlider.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+    }, { passive: true });
+    
+    rotateSlider.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+    }, { passive: true });
 }
 
 // Manipula o upload da imagem
@@ -146,7 +151,6 @@ function handleUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Verifica se é uma imagem válida
     if (!file.type.match('image.*')) {
         showError('Por favor, selecione um arquivo de imagem válido (JPEG, PNG)');
         return;
@@ -158,7 +162,6 @@ function handleUpload(e) {
     reader.onload = function(e) {
         img = new Image();
         img.onload = function() {
-            // Calcula a escala inicial para a imagem caber no canvas
             const scaleX = canvasSize / img.width;
             const scaleY = canvasSize / img.height;
             minScale = Math.max(scaleX, scaleY);
@@ -167,19 +170,16 @@ function handleUpload(e) {
             offsetY = 0;
             rotation = 0;
             
-            // Reseta os controles
             zoomSlider.value = 100;
             rotateSlider.value = 0;
             zoomValue.textContent = '100%';
             rotationValue.textContent = '0°';
             
-            // Mostra os controles
             controls.style.display = 'flex';
             downloadBtn.disabled = false;
             resetBtn.disabled = false;
-            linkedinBtn.style.display = 'none'; // Ainda não mostra o botão do LinkedIn
+            linkedinBtn.style.display = 'none';
             
-            // Salva os dados originais para reset
             originalImageData = {
                 scale: scale,
                 rotation: rotation,
@@ -187,7 +187,6 @@ function handleUpload(e) {
                 offsetY: offsetY
             };
             
-            // Desenha a imagem
             draw();
             showLoading(false);
         };
@@ -200,7 +199,7 @@ function handleUpload(e) {
     reader.readAsDataURL(file);
 }
 
-// Atualiza o zoom baseado no slider
+// Atualiza o zoom
 function updateZoom(value) {
     scale = minScale * (value / 100);
     zoomValue.textContent = `${value}%`;
@@ -208,7 +207,7 @@ function updateZoom(value) {
     draw();
 }
 
-// Atualiza a rotação baseado no slider
+// Atualiza a rotação
 function updateRotation(value) {
     rotation = value * Math.PI / 180;
     rotationValue.textContent = `${value}°`;
@@ -216,7 +215,7 @@ function updateRotation(value) {
     draw();
 }
 
-// Garante que a imagem não saia dos limites do canvas
+// Garante que a imagem não saia dos limites
 function constrainOffsets() {
     if (!img) return;
     
@@ -243,24 +242,20 @@ function constrainOffsets() {
     }
 }
 
-// Desenha a imagem e o twibbon no canvas
+// Desenha a imagem e o twibbon
 function draw() {
-    // Cancela qualquer animação pendente
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
     }
     
-    // Usa requestAnimationFrame para animação suave
     animationFrameId = requestAnimationFrame(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         if (img) {
             ctx.save();
-            // Centraliza e aplica transformações
             ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
             ctx.rotate(rotation);
             
-            // Calcula dimensões considerando rotação
             const rad = Math.abs(rotation);
             const cos = Math.cos(rad);
             const sin = Math.sin(rad);
@@ -269,12 +264,10 @@ function draw() {
             const drawWidth = img.width * scale * coverScale;
             const drawHeight = img.height * scale * coverScale;
             
-            // Desenha a imagem do usuário
             ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
             ctx.restore();
         }
         
-        // Desenha o twibbon por cima
         if (twibbon.complete && twibbon.naturalHeight !== 0) {
             ctx.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
         }
@@ -285,22 +278,21 @@ function draw() {
 function startDrag(e) {
     if (!img) return;
     isDragging = true;
-    startX = e.clientX || e.touches[0].clientX;
-    startY = e.clientY || e.touches[0].clientY;
+    const clientX = e.clientX || e.touches[0].clientX;
+    const clientY = e.clientY || e.touches[0].clientY;
+    startX = clientX - offsetX;
+    startY = clientY - offsetY;
     e.preventDefault();
 }
 
 function drag(e) {
     if (!isDragging || !img) return;
     
-    const currentX = e.clientX || e.touches[0].clientX;
-    const currentY = e.clientY || e.touches[0].clientY;
+    const clientX = e.clientX || e.touches[0].clientX;
+    const clientY = e.clientY || e.touches[0].clientY;
     
-    offsetX += (currentX - startX) * 1.5;
-    offsetY += (currentY - startY) * 1.5;
-    
-    startX = currentX;
-    startY = currentY;
+    offsetX = clientX - startX;
+    offsetY = clientY - startY;
     
     constrainOffsets();
     draw();
@@ -311,7 +303,7 @@ function endDrag() {
     isDragging = false;
 }
 
-// Versões para touch (mobile)
+// Versões para touch melhoradas
 function handleTouchStart(e) {
     startDrag(e);
 }
@@ -324,7 +316,7 @@ function handleTouchEnd() {
     endDrag();
 }
 
-// Controles por teclado para acessibilidade
+// Controles por teclado
 function handleKeyDown(e) {
     if (!img) return;
     
@@ -370,7 +362,7 @@ function handleKeyDown(e) {
     e.preventDefault();
 }
 
-// Reseta a imagem para o estado inicial
+// Reseta a imagem
 function resetImage() {
     if (!originalImageData) return;
     
@@ -388,16 +380,31 @@ function resetImage() {
     draw();
 }
 
-// Compartilha no LinkedIn
+// Compartilha no LinkedIn - versão melhorada para mobile
 function shareOnLinkedIn() {
     if (!lastGeneratedImage) {
         showError('Por favor, gere uma imagem primeiro');
         return;
     }
     
-    const text = "🟢 Eu apoio o Abril Verde!Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
+    
+    // Verifica se é mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // Tenta abrir diretamente no app do LinkedIn
+        const linkedinAppUrl = `linkedin://share?text=${encodeURIComponent(text)}`;
+        window.location.href = linkedinAppUrl;
+        
+        // Fallback para web se o app não estiver instalado
+        setTimeout(() => {
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
+        }, 500);
+    } else {
+        // Desktop - abre normalmente
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
+    }
 }
 
 // Baixa a imagem
@@ -406,24 +413,20 @@ function downloadImage() {
     
     showLoading(true);
     
-    // Usa setTimeout para dar tempo da UI atualizar
     setTimeout(() => {
         try {
-            // Cria um canvas temporário com maior resolução
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-            const downloadSize = 1080; // Tamanho grande para boa qualidade
+            const downloadSize = 1080;
             
             tempCanvas.width = downloadSize;
             tempCanvas.height = downloadSize;
             
-            // Ajusta as transformações para o novo tamanho
             const scaleRatio = downloadSize / canvasSize;
             const downloadScale = scale * scaleRatio;
             const downloadOffsetX = offsetX * scaleRatio;
             const downloadOffsetY = offsetY * scaleRatio;
             
-            // Aplica as mesmas transformações
             tempCtx.save();
             tempCtx.translate(downloadSize / 2 + downloadOffsetX, downloadSize / 2 + downloadOffsetY);
             tempCtx.rotate(rotation);
@@ -433,23 +436,18 @@ function downloadImage() {
             const drawWidth = img.width * downloadScale * coverScale;
             const drawHeight = img.height * downloadScale * coverScale;
             
-            // Desenha a imagem do usuário
             tempCtx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
             tempCtx.restore();
             
-            // Desenha o twibbon por cima
             tempCtx.drawImage(twibbon, 0, 0, downloadSize, downloadSize);
             
-            // Salva a imagem gerada para compartilhamento
             lastGeneratedImage = tempCanvas.toDataURL('image/png');
             
-            // Cria o link de download
             const link = document.createElement('a');
             link.download = 'montarsul-abril-verde.png';
             link.href = lastGeneratedImage;
             link.click();
             
-            // Mostra o modal de compartilhamento
             showModal(lastGeneratedImage);
             showLoading(false);
         } catch (error) {
@@ -460,12 +458,12 @@ function downloadImage() {
     }, 100);
 }
 
-// Mostra o modal com a imagem gerada
+// Mostra o modal
 function showModal(imageData) {
     modalPreview.src = imageData;
     shareModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    linkedinBtn.style.display = 'flex'; // Mostra o botão "Voltar para o post"
+    linkedinBtn.style.display = 'flex';
 }
 
 // Fecha o modal
@@ -490,14 +488,5 @@ function hideError() {
     errorMessage.style.display = 'none';
 }
 
-// Configura os sliders para atualizarem a imagem
-zoomSlider.addEventListener('input', function() {
-    updateZoom(this.value);
-});
-
-rotateSlider.addEventListener('input', function() {
-    updateRotation(this.value);
-});
-
-// Inicializa a aplicação quando o DOM estiver pronto
+// Inicializa a aplicação
 document.addEventListener('DOMContentLoaded', init);
