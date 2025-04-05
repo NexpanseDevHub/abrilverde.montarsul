@@ -435,18 +435,27 @@ function shareOnLinkedIn() {
         return;
     }
 
-    const text = "🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim nessa causa e mostre seu apoio! Quanto mais pessoas conscientes, mais vidas protegidas. 🚧 #AbrilVerdeMontarsul";
     const url = "https://nexpansedevhub.github.io/abrilverdemontarsul/";
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
+        // 1. Tenta abrir no app com a mensagem EMBUTIDA NO LINK (funciona no iOS e alguns Androids)
+        const messageEmbeddedInUrl = `${url}#.${encodeURIComponent("🟢 Eu apoio o Abril Verde! Segurança no trabalho é compromisso de todos. 💪🏽 Junte-se a mim!")}`;
+        
         if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            // iOS
-            window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+            // iOS: usa URL scheme com mensagem no hash
+            window.location.href = `linkedin://shareArticle?mini=true&url=${encodeURIComponent(messageEmbeddedInUrl)}`;
         } else {
-            // Android
-            window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}#Intent;package=com.linkedin.android;scheme=https;end`;
+            // Android: usa Intent com fallback opcional
+            window.location.href = `intent://linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(messageEmbeddedInUrl)}#Intent;package=com.linkedin.android;scheme=https;end`;
         }
+
+        // 2. Fallback discreto (opcional)
+        setTimeout(() => {
+            if (!document.hidden) {
+                console.log("O app não abriu. Você pode adicionar um aviso aqui.");
+            }
+        }, 1000);
     }
 }
 
